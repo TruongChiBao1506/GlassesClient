@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlassesShop - Chatbot</title>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+<link rel="stylesheet" th:href="@{/css/index.css}">
+<link rel="stylesheet" th:href="@{/css/chatbot.css}">
+<style>
+/* CSS cho header ẩn hiện và layout chatbot */
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    position: fixed;
+    top: -180px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: top 0.3s ease;
+}
+
+/* Vùng cảm ứng để hiển thị header */
+.header-trigger {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    z-index: 1001;
+}
+
+.header-trigger:hover+header, header:hover {
+    top: 0;
+}
+
+/* Điều chỉnh container chính - THU NHỎ SIDEBAR */
+.container {
+    padding-top: 10px;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Thu nhỏ sidebar và cho phép đóng mở */
+.conversations-sidebar {
+    width: 280px;
+    min-width: 280px;
+    height: 100%;
+    border-right: 1px solid #ddd;
+    background-color: #f8f9fa;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    right: -30px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.sidebar-collapsed .conversations-sidebar {
+    transform: translateX(-280px);
+}
+
+.chat-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    background-color: #fff;
+}
+
+.chat-header {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f8f9fa;
+}
+
+.chat-header-content {
+    display: flex;
+    align-items: center;
+}
+
+.chat-header-logo img {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+}
+
+.chat-header-text h4 {
+    margin: 0;
+    color: #007bff;
+}
+
+.chat-header-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+/* Làm đẹp tin nhắn */
+.message {
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    max-width: 80%;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-user {
+    background-color: #007bff;
+    color: white;
+    margin-left: auto;
+    border-top-right-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message-assistant {
+    background-color: #f0f2f5;
+    color: #333;
+    margin-right: auto;
+    border-top-left-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.message-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right;
+    margin-top: 5px;
+}
+
+.message-assistant .message-time {
+    color: #999;
+}
+
+/* Cải thiện vùng nhập chat */
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex: 1;
+    border-radius: 20px;
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: border 0.3s ease;
+}
+
+.chat-input input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.chat-input button {
+    margin-left: 10px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chat-input button:hover {
+    background-color: #0069d9;
+}
+
+/* Làm đẹp danh sách hội thoại */
+.language-selector {
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.new-chat-btn {
+    width: 100%;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.conversation-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.conversation-item:hover {
+    background-color: #e9ecef;
+}
+
+.conversation-item.active {
+    background-color: #e2e6ea;
+    border-left: 3px solid #007bff;
+}
+
+.conversation-time {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* Footer cố định và đơn giản hóa */
+footer {
+    padding: 10px 0;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+}
+
+.footer__bottom {
+    padding: 5px 0;
+}
+
+/* Ẩn footer__top để có thêm không gian */
+.footer__top {
+    display: none;
+}
+
+/* Hiệu ứng gõ */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background-color: #bbb;
+    display: inline-block;
+    margin: 0 2px;
+    animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+/* Ẩn nút chatbot khi đang ở trang chatbot */
+.chat-button-container {
+    display: none;
+}
+
+/* CSS cho gợi ý sản phẩm */
+.product-card-inline {
+    display: flex;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.product-image {
+    flex: 0 0 100px;
+}
+
+.product-info {
+    flex: 1;
+    padding: 10px;
+}
+
+.message-paragraph {
+    margin-bottom: 10px;
+}
+
+.message-line {
+    margin-bottom: 5px;
+}
+
+/* Chế độ toàn màn hình */
+.fullscreen-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 20px;
+}
+
+.chat-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    background: white;
+}
+
+/* Phản hồi cho thiết bị di động */
+@media (max-width: 768px) {
+    .conversations-sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar-open .conversations-sidebar {
+        transform: translateX(0);
+    }
+    
+    .sidebar-toggle {
+        right: -40px;
+    }
+}
+</style>
+
+</head>
+<body>
+	<!-- Thêm div vùng cảm ứng để hiển thị header khi hover -->
+	<div class="header-trigger"></div>
+	<!-- HEADER -->
+	<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông
+										tin cá nhân</a> <a class="dropdown-item"
+										th:href="@{/changePassword}">Đổi mật khẩu</a> <a
+										class="dropdown-item" th:href="@{/orderHistory}">Lịch sử
+										mua hàng</a> <a class="dropdown-item" th:href="@{/logout}">Đăng
+										xuất</a>
+
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item"><a class="nav-link" th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
+								Eyeglasses</a> <a class="dropdown-item"
+								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
+								Sunglasses</a> <a class="dropdown-item"
+								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/about}">About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual
+							assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div class="container">
+		<div class="chat-container">
+			<div class="conversations-sidebar">
+				<!-- Thêm nút đóng/mở sidebar -->
+				<button class="sidebar-toggle" id="sidebarToggle">
+					<i class="fas fa-chevron-right"></i>
+				</button>
+				<button id="newChatBtn" class="btn btn-primary new-chat-btn">
+					<i class="fas fa-plus"></i> Cuộc hội thoại mới
+				</button>
+
+				<div class="language-selector">
+					<select id="languageSelect" class="form-select">
+						<option value="vi" selected>Tiếng Việt</option>
+						<option value="en">English</option>
+					</select>
+				</div>
+
+				<div id="conversationsList">
+					<!-- Danh sách các cuộc hội thoại sẽ được render bằng JavaScript -->
+					<div th:if="${conversations != null}"
+						th:each="conv : ${conversations}" th:attr="data-id=${conv.id}"
+						class="conversation-item"
+						th:classappend="${conversation != null && conversation.id == conv.id} ? 'active' : ''">
+						<div class="d-flex justify-content-between">
+							<div>
+								<i class="fas fa-comments"></i> <span
+									th:text="${#strings.abbreviate(conv.messages[0].content, 20)}">Tin
+									nhắn đầu tiên</span>
+							</div>
+							<div class="conversation-time"
+								th:text="${#temporals.format(conv.updatedAt, 'dd/MM/yyyy HH:mm')}">
+								01/01/2023</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="chat-main">
+				<!-- Thêm nút toàn màn hình -->
+				<button class="fullscreen-button" id="fullscreenButton">
+					<i class="fas fa-expand"></i>
+				</button>
+				<div class="chat-header">
+					<div class="chat-header-content">
+						<div class="chat-header-logo">
+							<img
+								src="https://zzz.senpailife.com/wp-content/uploads/2024/07/ZZZ-Asset-Icon-Attribute-Ether-03.webp"
+								alt="Gemini AI Logo">
+						</div>
+						<div class="chat-header-text">
+							<h4>Trợ lý kính mắt</h4>
+							<p>Hỏi bất kỳ điều gì về kính mắt, tôi sẽ giúp bạn!</p>
+						</div>
+					</div>
+				</div>
+
+				<div id="chatMessages" class="chat-messages">
+					<!-- Tin nhắn sẽ được render bằng JavaScript -->
+					<div
+						th:if="${conversation != null and conversation.messages != null}"
+						th:each="msg : ${conversation.messages}">
+						<div class="message"
+							th:classappend="${msg.role == 'user'} ? 'message-user' : 'message-assistant'">
+							<div
+								th:utext="${#strings.replace(msg.content, '&#10;', '<br/>')}">Nội
+								dung tin nhắn</div>
+							<div class="message-time"
+								th:text="${#temporals.format(msg.timestamp, 'HH:mm')}">12:00</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="chat-input">
+					<input type="text" id="messageInput"
+						placeholder="Nhập tin nhắn của bạn..." class="form-control">
+					<button id="sendButton" class="btn btn-primary">
+						<i class="fas fa-paper-plane"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="chat-button-container">
+		<a href="/chatbot" class="chat-button"> <i class="fas fa-comments"></i>
+		</a>
+	</div>
+	<!-- FOOTER -->
+	<footer>
+		<div class="footer__top section">
+			<div class="container">
+				<div class="footer__grid row">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>About Us</h3>
+						<p>We are an eyewear store that offers a wide selection of
+							fashionable and functional glasses from top brands. Our friendly
+							staff are always ready to assist you in finding the perfect pair
+							of glasses to match your style and budget. Come visit us and see
+							the world in a new light!</p>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Latest News</h3>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Services</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Glasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Sunglasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Accessories</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Products</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Gift
+								Card</a>
+						</div>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Contact Info</h3>
+						<div class="footer__contact">
+							<i class="fa fa-map-marker-alt"></i> <a href="#">112 Cao
+								Thắng, Quận 3 – HCM</a>
+						</div>
+						<div class="footer__contact">
+							<i class="far fa-envelope"></i> <a
+								href="mailto:ndat04913@gmail.com">ndat04913@gmail.com</a>
+						</div>
+						<div class="footer__contact">
+							<i class="fas fa-phone-alt"></i> <a href="tel:0966894644">096.689.4644</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="footer__form">
+					<form>
+						<div class="form-group form-row">
+							<label
+								class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 col-form-label"
+								for="emailFooter">Sign up for our Newsletter</label>
+							<div class="col-8 col-sm-8 col-md-8 col-lg-6 col-xl-6">
+								<input type="email" class="form-control" id="emailFooter"
+									placeholder="Enter Email Address ...">
+							</div>
+							<div
+								class="col-4 col-sm-4 col-md-4 col-lg-2 col-xl-2 text-center">
+								<button type="submit" class="btn">SUBMIT</button>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="footer__bottom">
+			<div>
+				© 2024 Instruction. All rights reserved | Design by <a href="#">Nhóm
+					10</a>
+			</div>
+		</div>
+	</footer>
+
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+        $(document).ready(function() {
+            let currentConversationId = null;
+            const userId = "[[${session.userId}]]";
+            let selectedLanguage = "vi";
+            
+            // Khởi tạo giá trị conversationId nếu có
+            if ($(".conversation-item.active").length > 0) {
+                currentConversationId = $(".conversation-item.active").data("id");
+            }
+            
+            // Scroll xuống cuối cùng của các tin nhắn
+            function scrollToBottom() {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Khởi tạo với scroll xuống dưới cùng
+            scrollToBottom();
+            
+            // Format giá tiền
+            function formatPrice(price) {
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
+                    minimumFractionDigits: 0
+                }).format(price);
+            }
+            
+            // Thêm tin nhắn người dùng vào giao diện
+            function addUserMessage(message) {
+                const time = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                const userMessageHtml = `
+                    <div class="message message-user">
+                        <div>${message}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                $('#chatMessages').append(userMessageHtml);
+                scrollToBottom();
+            }
+            
+            // Thêm tin nhắn đang đánh vào giao diện
+            function addTypingIndicator() {
+                const typingHtml = `
+                    <div id="typingIndicator" class="message message-assistant typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                `;
+                $('#chatMessages').append(typingHtml);
+                scrollToBottom();
+            }
+            
+            // Xóa tin nhắn đang đánh
+            function removeTypingIndicator() {
+                $('#typingIndicator').remove();
+            }
+            
+            // Thêm tin nhắn của trợ lý vào giao diện
+            function addAssistantMessage(response) {
+                const time = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                let messageContent = response.message;
+                
+                // Xử lý tin nhắn để loại bỏ các định dạng không mong muốn
+                try {
+                    // Bước 1: Loại bỏ hoàn toàn dấu ] từ nội dung tin nhắn
+                    messageContent = messageContent.replace(/\]\s*/g, '');
+                    
+                    // Bước 2: Tìm và định dạng lại JSON trong tin nhắn
+                    const jsonPattern = /\{[\s\S]*?"productId"[\s\S]*?\}/g;
+                    messageContent = messageContent.replace(jsonPattern, function(match) {
+                        try {
+                            // Phân tích JSON
+                            const jsonData = JSON.parse(match);
+                            
+                            // Nếu có dữ liệu sản phẩm hợp lệ, định dạng thành card
+                            if (jsonData.productId && jsonData.name) {
+                                let productHtml = `
+                                <div class="product-card-inline">
+                                    <div class="product-image">
+                                        <img src="${jsonData.imageUrl || 'https://placeholder.pics/svg/200x150/DEDEDE/555555/Không%20có%20hình'}" style = "width:100px; height:100px" alt="${jsonData.name}">
+                                    </div>
+                                    <div class="product-info">
+                                        <h5 class="product-name">${jsonData.name}</h5>
+                                        <div class="product-details">
+                                            <div class="price">${formatPrice(jsonData.price)}</div>
+                                            <div class="badge bg-secondary">${jsonData.category || 'Kính mắt'}</div>
+                                        </div>
+                                        <a href="${jsonData.detailUrl || '/product/' + jsonData.productId}" target="_blank" class="btn btn-primary">Xem chi tiết</a>
+                                    </div>
+                                </div>`;
+                                return productHtml;
+                            }
+                            return ''; // Loại bỏ hoàn toàn JSON thô sau khi đã xử lý
+                        } catch (e) {
+                            console.error("Lỗi phân tích JSON:", e, match);
+                            return ''; // Loại bỏ JSON lỗi
+                        }
+                    });
+                    
+                    // Bước 3: Xử lý dòng trống 
+                    messageContent = messageContent.trim();
+                    
+                    // Bước 4: Chuyển đổi văn bản sang HTML có cấu trúc thay vì sử dụng <br>
+                    // Tách nội dung thành các đoạn và áp dụng kiểu định dạng phù hợp
+                    const paragraphs = messageContent.split(/\n\s*\n+/); // Tách theo nhóm dòng trống
+                    
+                    let formattedContent = '';
+                    paragraphs.forEach(paragraph => {
+                        if (paragraph.trim() !== '') {
+                            // Xử lý các dòng trong một đoạn văn
+                            const lines = paragraph.split('\n');
+                            if (lines.length > 1) {
+                                // Nếu đoạn có nhiều dòng, có thể là danh sách hoặc nhiều dòng liên tiếp
+                                formattedContent += `<div class="message-paragraph">`;
+                                
+                                lines.forEach(line => {
+                                    if (line.trim() !== '') {
+                                        formattedContent += `<div class="message-line">${line.trim()}</div>`;
+                                    }
+                                });
+                                
+                                formattedContent += `</div>`;
+                            } else {
+                                // Nếu chỉ có một dòng, đây là đoạn văn bản đơn
+                                formattedContent += `<div class="message-paragraph">${paragraph.trim()}</div>`;
+                            }
+                        }
+                    });
+                    
+                    messageContent = formattedContent;
+                } catch (e) {
+                    console.error("Lỗi xử lý nội dung tin nhắn:", e);
+                }
+                
+                // Tạo nội dung HTML cho tin nhắn
+                let messageHtml = messageContent;
+                
+                // Thêm đề xuất sản phẩm vào trong nội dung tin nhắn nếu có
+                if (response.productSuggestion && response.suggestedProducts && response.suggestedProducts.length > 0) {
+                    messageHtml += `
+                    <div class="suggested-products-title">
+                        <i class="fas fa-lightbulb"></i> Các sản phẩm gợi ý cho bạn:
+                    </div>
+                    <div class="product-carousel-container">
+                        <div class="product-carousel">`;
+                    
+                    response.suggestedProducts.forEach(product => {
+                        messageHtml += `
+                            <div class="product-card-suggestion">
+                                <a href="${product.detailUrl}" target="_blank" class="product-link">
+                                    <div class="product-image-container">
+                                        <img src="${product.imageUrl}" alt="${product.name}" 
+                                             onerror="this.src='https://placeholder.pics/svg/200x150/DEDEDE/555555/Không%20có%20hình'">
+                                    </div>
+                                    <div class="product-info-suggestion">
+                                        <h5 class="product-name-suggestion">${product.name}</h5>
+                                        <div class="price-suggestion">${formatPrice(product.price)}</div>
+                                        <span class="badge bg-secondary category-badge">${product.category}</span>
+                                        <span class="product-link-btn">Xem chi tiết</span>
+                                    </div>
+                                </a>
+                            </div>
+                        `;
+                    });
+                    
+                    messageHtml += `
+                        </div>
+                    </div>`;
+                }
+                
+                // Tạo HTML cho tin nhắn
+                let assistantMessageHtml = `
+                    <div class="message message-assistant">
+                        <div class="message-content">${messageHtml}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                
+                // Thêm đề xuất chuyển hướng nếu có
+                if (response.hasNavigationSuggestion && response.navigationSuggestion) {
+                    const nav = response.navigationSuggestion;
+                    assistantMessageHtml += `
+                        <div class="navigation-suggestion">
+                            <p>${nav.description}</p>
+                            <a href="${nav.url}" class="btn btn-warning">
+                                <i class="fas fa-arrow-right"></i> ${nav.title}
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                $('#chatMessages').append(assistantMessageHtml);
+                scrollToBottom();
+                
+                // Lưu ID cuộc hội thoại hiện tại
+                if (response.conversationId) {
+                    currentConversationId = response.conversationId;
+                    
+                    // Kiểm tra xem cuộc hội thoại đã có trong danh sách chưa
+                    if ($(`#conversationsList [data-id="${currentConversationId}"]`).length === 0) {
+                        // Tạo mục cuộc hội thoại mới và thêm vào đầu danh sách
+                        const newConversationHtml = `
+                            <div class="conversation-item active" data-id="${currentConversationId}">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <i class="fas fa-comments"></i>
+                                        <span>${$('#messageInput').val().substring(0, 20) || 'Cuộc hội thoại mới'}</span>
+                                    </div>
+                                    <div class="conversation-time">${new Date().toLocaleDateString('vi-VN')}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Loại bỏ lớp active khỏi tất cả các cuộc hội thoại
+                        $('.conversation-item').removeClass('active');
+                        
+                        // Thêm cuộc hội thoại mới vào đầu danh sách
+                        $('#conversationsList').prepend(newConversationHtml);
+                    } else {
+                        // Đánh dấu cuộc hội thoại hiện tại là active
+                        $('.conversation-item').removeClass('active');
+                        $(`#conversationsList [data-id="${currentConversationId}"]`).addClass('active');
+                    }
+                }
+            }
+            
+            // Xử lý khi người dùng gửi tin nhắn
+            function sendMessage() {
+                const message = $('#messageInput').val().trim();
+                if (!message) return;
+                
+                // Thêm tin nhắn người dùng vào giao diện
+                addUserMessage(message);
+                
+                // Hiển thị hiệu ứng đang đánh
+                addTypingIndicator();
+                
+                // Chuẩn bị dữ liệu gửi đi
+                const chatRequest = {
+                    message: message,
+                    userId: userId,
+                    conversationId: currentConversationId,
+                    language: selectedLanguage
+                };
+                
+                // Xóa tin nhắn trong ô nhập
+                $('#messageInput').val('');
+                
+                // Gửi tin nhắn đến server
+                $.ajax({
+                    url: 'http://localhost:8080/api/chatbot/chat',
+                    type: 'POST',
+                    data: JSON.stringify(chatRequest),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        // Xóa hiệu ứng đang đánh
+                        removeTypingIndicator();
+                        
+                        // Thêm tin nhắn trợ lý vào giao diện
+                        addAssistantMessage(response);
+                    },
+                    error: function(error) {
+                        // Xóa hiệu ứng đang đánh
+                        removeTypingIndicator();
+                        
+                        // Hiển thị thông báo lỗi
+                        $('#chatMessages').append(`
+                            <div class="message message-assistant">
+                                <div>Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.</div>
+                                <div class="message-time">${new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</div>
+                            </div>
+                        `);
+                        scrollToBottom();
+                    }
+                });
+            }
+            
+            // Sự kiện click nút gửi
+            $('#sendButton').click(sendMessage);
+            
+            // Sự kiện nhấn Enter trong ô nhập
+            $('#messageInput').keypress(function(e) {
+                if (e.which === 13) {
+                    sendMessage();
+                    return false;
+                }
+            });
+            
+            // Sự kiện click vào cuộc hội thoại trong danh sách
+            $(document).on('click', '.conversation-item', function() {
+                const conversationId = $(this).data('id');
+                window.location.href = `/chatbot/${conversationId}`;
+            });
+            
+            // Sự kiện click nút tạo cuộc hội thoại mới
+            $('#newChatBtn').click(function() {
+                currentConversationId = null;
+                $('#chatMessages').empty();
+                $('.conversation-item').removeClass('active');
+                window.location.href = '/chatbot';
+            });
+            
+            // Sự kiện thay đổi ngôn ngữ
+            $('#languageSelect').change(function() {
+                selectedLanguage = $(this).val();
+                
+                // Cập nhật placeholder của ô nhập theo ngôn ngữ
+                if (selectedLanguage === 'en') {
+                    $('#messageInput').attr('placeholder', 'Type your message...');
+                    $('#newChatBtn').html('<i class="fas fa-plus"></i> New chat');
+                    $('.chat-header h4').text('Eyewear Assistant');
+                    $('.chat-header p').text('Ask me anything about eyewear, I\'ll help you!');
+                } else {
+                    $('#messageInput').attr('placeholder', 'Nhập tin nhắn của bạn...');
+                    $('#newChatBtn').html('<i class="fas fa-plus"></i> Cuộc hội thoại mới');
+                    $('.chat-header h4').text('Trợ lý kính mắt');
+                    $('.chat-header p').text('Hỏi bất kỳ điều gì về kính mắt, tôi sẽ giúp bạn!');
+                }
+            });
+        });
+		// Xử lý đóng/mở sidebar
+		$("#sidebarToggle").click(function() {
+			$("body").toggleClass("sidebar-collapsed");
+			const icon = $(this).find("i");
+			if ($("body").hasClass("sidebar-collapsed")) {
+				icon.removeClass("fa-chevron-right").addClass("fa-chevron-left");
+			} else {
+				icon.removeClass("fa-chevron-left").addClass("fa-chevron-right");
+			}
+		});
+		
+		// Xử lý nút toàn màn hình
+		let isFullscreen = false;
+		$("#fullscreenButton").click(function() {
+			const icon = $(this).find("i");
+			if (!isFullscreen) {
+				$(".chat-container").addClass("chat-fullscreen");
+				icon.removeClass("fa-expand").addClass("fa-compress");
+			} else {
+				$(".chat-container").removeClass("chat-fullscreen");
+				icon.removeClass("fa-compress").addClass("fa-expand");
+			}
+			isFullscreen = !isFullscreen;
+		});
+		
+		// Điều chỉnh việc hiển thị header khi cuộn
+		let lastScrollTop = 0;
+		$(window).scroll(function() {
+			const st = $(this).scrollTop();
+			
+			// Hiện header khi cuộn lên trên
+			if (st < lastScrollTop) {
+				$('header').css('top', '0');
+				
+				// Ẩn header sau 3 giây nếu không hover
+				setTimeout(function() {
+					if (!$('header:hover').length && !$('.header-trigger:hover').length) {
+						$('header').css('top', '-180px');
+					}
+				}, 3000);
+			}
+			
+			lastScrollTop = st;
+		});
+		
+		// Ẩn header khi click vào khung chat
+		$('.chat-main').click(function() {
+			if (!$('header:hover').length) {
+				$('header').css('top', '-180px');
+			}
+		});
+		
+		// Thêm phím tắt để hiện/ẩn header (esc)
+		$(document).keyup(function(e) {
+			if (e.key === "Escape") {
+				const headerTop = $('header').css('top');
+				if (headerTop === '0px') {
+					$('header').css('top', '-180px');
+				} else {
+					$('header').css('top', '0');
+				}
+			}
+		});
+    </script>
+</body>
+</html>

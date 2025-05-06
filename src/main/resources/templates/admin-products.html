@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard - Product List</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<!-- Montserrat Font -->
+<link
+	href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+	rel="stylesheet">
+
+<!-- Material Icons -->
+<link
+	href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+	rel="stylesheet">
+
+<!-- Custom CSS -->
+<link rel="stylesheet" th:href="@{/css/userList.css}">
+<link rel="stylesheet" th:href="@{/css/admin-dropdowns.css}">
+<link rel="stylesheet" th:href="@{/css/sweetalert2.min.css}">
+<!-- Thêm thư viện SockJS và Stomp.js -->
+<script
+	src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<style type="text/css">
+.table-danger {
+	background-color: #f8d7da !important; /* Màu nền đỏ nhạt */
+	color: #721c24; /* Màu chữ đỏ đậm */
+}
+
+.table-warning {
+	background-color: #fff3cd !important; /* Nền vàng nhạt */
+	color: #856404; /* Chữ vàng đậm */
+}
+
+.success-notification-container {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 1050;
+	max-width: 350px;
+}
+
+.success-alert {
+	margin-bottom: 10px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+	background-color: #d4edda;
+	color: #155724;
+}
+</style>
+</head>
+<body>
+	<div class="grid-container">
+		<input type="hidden" id="token" th:value="${token}">
+		<!-- Header -->
+		<header class="header">
+			<div class="menu-icon" onclick="openSidebar()">
+				<span class="material-icons-outlined">menu</span>
+			</div>
+			<div class="header-left"></div>
+			<div class="header-right">
+				<div class="notification-container">
+					<div
+						th:if="${notifications != null and !#lists.isEmpty(notifications)}">
+						<span class="notification-dot active"></span>
+					</div>
+					<div
+						th:if="${notifications == null or #lists.isEmpty(notifications)}">
+						<span class="notification-dot"></span>
+					</div>
+					<button id="notification-btn">
+						<span class="material-icons-outlined">notifications</span>
+					</button>
+					<div id="notification-popup" class="notification-popup">
+						<h3>Thông báo</h3>
+						<div th:if="${notifications == null or notifications.isEmpty()}">Chưa
+							có thông báo</div>
+						<ul>
+							<li th:each="notification : ${notifications}">
+								<div class="notification-item notification-info" th:id="'notification-'+${notification.id}">
+									<div class="notification-icon">
+										<span class="material-icons-outlined">info</span>
+									</div>
+									<div class="notification-content">
+										<div class="notification-header">
+											<span class="notification-title">Thông báo</span>
+										</div>
+										<p class="notification-message" th:text="${notification.message}"></p>
+										<div class="notification-actions">
+											<button class="mark-as-read-btn" th:onclick="'markAsRead('+${notification.id}+')'">
+												<span class="material-icons-outlined" style="font-size: 14px; margin-right: 4px;">check_circle</span>
+												Đánh dấu đã đọc
+											</button>
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="user-account">
+					<button id="account-btn">
+						<span class="material-icons-outlined">account_circle</span>
+					</button>
+					<div id="account-popup" class="account-popup">
+						<a class="dropdown-item" th:href="@{/profile}">
+							<span class="material-icons-outlined" style="font-size: 18px; margin-right: 8px;">person</span>
+							Xem thông tin cá nhân
+						</a>
+						<a class="dropdown-item" th:href="@{/changePassword}">
+							<span class="material-icons-outlined" style="font-size: 18px; margin-right: 8px;">lock</span>
+							Đổi mật khẩu
+						</a>
+						<a class="dropdown-item" th:href="@{/logout}">
+							<span class="material-icons-outlined" style="font-size: 18px; margin-right: 8px;">logout</span>
+							Đăng xuất
+						</a>
+					</div>
+				</div>
+			</div>
+		</header>
+		<!-- End Header -->
+
+		<!-- Sidebar -->
+		<aside id="sidebar">
+			<div class="sidebar-title">
+				<div class="sidebar-brand">
+					<span class="material-icons-outlined">shopping_cart</span> STORE
+				</div>
+				<span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+			</div>
+
+			<ul class="sidebar-list">
+				<li class="sidebar-list-item"><a th:href="@{/admin-dashboard}">
+						<span class="material-icons-outlined">dashboard</span> Dashboard
+				</a></li>
+				<li class="sidebar-list-item"><a th:href="@{/products}"> <span
+						class="material-icons-outlined">inventory_2</span> Products
+				</a></li>
+				<li class="sidebar-list-item"><a th:href="@{/userList}"> <span
+						class="material-icons-outlined">groups</span> Users
+				</a></li>
+				<li class="sidebar-list-item"><a th:href="@{/orderList}"> <span
+						class="material-icons-outlined">fact_check</span> Orders
+				</a></li>
+				<li class="sidebar-list-item has-submenu"><a
+					href="javascript:void(0);"
+					onclick="toggleSubmenu('reports-submenu')"> <span
+						class="material-icons-outlined">poll</span> Reports <span
+						class="material-icons-outlined dropdown-icon"
+						style="margin-top: 10px">expand_more</span>
+				</a>
+					<ul class="submenu" id="reports-submenu">
+						<li><a th:href="@{/report/order-report}">Orders Report</a></li>
+
+					</ul></li>
+			</ul>
+		</aside>
+		<!-- End Sidebar -->
+
+		
+
+		<!-- Main -->
+		<main class="main-container">
+			<div class="main-title">
+				<h2>Quản lý sản phẩm</h2>
+			</div>
+			
+			 <!-- Ẩn các thông báo cũ, sẽ hiển thị bằng SweetAlert2 -->
+			<div class="success-notification-container d-none" id="successContainer">
+				<div th:if="${successMessage}" 
+					class="alert alert-success alert-dismissible fade show success-alert d-none" 
+					role="alert">
+					<i class="fas fa-check-circle me-2"></i>
+					<span th:text="${successMessage}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"
+						aria-label="Close"></button>
+				</div>
+			</div>
+			<div th:if="${error}" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+				<i class="fas fa-exclamation-circle me-2"></i>
+				<span th:text="${error}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert"
+						aria-label="Close"></button>
+			</div>
+			
+			<div class="user-table-container">
+				<div class="table-header">
+					<!-- Tìm kiếm sản phẩm -->
+					<div class="search-container">
+						<form action="/products/searchGlasses" method="get">
+							<table>
+								<tr>
+									<td><input type="text" name="keyword" class="form-control"
+										placeholder="Tìm kiếm sản phẩm..." required></td>
+									<td>
+										<button type="submit" class="btn btn-primary">Tìm
+											kiếm</button>
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+					<div class="add-user-btn-container">
+						<a th:href="@{/products/showForm}" class="add-user-btn"> <span
+							class="material-icons-outlined">add</span> Add New Product
+						</a>
+					</div>
+				</div>
+				
+				<!-- Danh sách sản phẩm -->
+				<div class="table-responsive">
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Tên sản phẩm</th>
+								<th>Giá</th>
+								<th>Danh mục</th>
+								<th>Giới tính</th>
+								<th>Mô tả</th>
+								<th>Nhãn hàng</th>
+								<th>Số lượng</th>
+								<th>Ảnh bên</th>
+								<th>Thao tác</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr
+								th:class="${product.stock == null ? '' : (product.stock == 0 ? 'table-danger' : (product.stock < 5 ? 'table-warning' : ''))}"
+								th:each="product : ${products}">
+								<td th:text="${product.id}"></td>
+								<td th:text="${product.name}"></td>
+								<td
+									th:text="${T(iuh.fit.se.utils.Utils).formatPrice(product.price)}"></td>
+								<td th:text="${product.category.name}"></td>
+								<td th:text="${product.gender ? 'Male' : 'Female'}"></td>
+								<td th:text="${product.description}"></td>
+								<td th:text="${product.brand}"></td>
+								<td th:text="${product.stock}"></td>
+								<td><img th:src="@{${product.imageSideUrl}}"
+									alt="Product Image" width="100" height="100"></td>
+								<td>
+									<div class="action-buttons">
+										<a th:href="@{/products/update/{id}(id=${product.id})}">
+											<button class="update-btn">
+												<span class="material-icons-outlined ico">edit</span>
+											</button>
+										</a> <a th:href="@{/products/delete/{id}(id=${product.id})}"
+											onclick="confirmDelete(event, this.href)">
+											<button class="delete-btn">
+												<span class="material-icons-outlined ico">delete</span>
+											</button>
+										</a>
+									</div>
+
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</main>
+		<!-- End Main -->
+	</div>
+	<script th:src="@{/js/sweetalert2.all.min.js}"></script>
+	<script th:src="@{/js/header.js}"></script>
+	<script th:src="@{/js/notification-websocket.js}"></script>
+	<!-- Bootstrap JS -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		function toggleSubmenu(submenuId) {
+			const submenu = document.getElementById(submenuId);
+			const parent = submenu.closest('.has-submenu');
+
+			if (submenu.style.display === 'block') {
+				submenu.style.display = 'none';
+				parent.classList.remove('open');
+			} else {
+				submenu.style.display = 'block';
+				parent.classList.add('open');
+			}
+		}
+	</script>
+	<script>
+    function confirmDelete(event, url) {
+        event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: "Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Có, xóa nó!',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url; // Tiến hành xóa nếu người dùng xác nhận
+            }
+        });
+    }
+	</script>
+	<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tự động ẩn thông báo thành công sau 5 giây
+            const successContainer = document.getElementById('successContainer');
+            if (successContainer) {
+                setTimeout(() => {
+                    successContainer.style.display = 'none';
+                }, 5000);
+            }
+        });    		
+    </script>
+	<!-- Script hiển thị thông báo SweetAlert2 -->
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', function() {
+			// Lấy thông báo từ server
+			const successMessage = /*[[${successMessage}]]*/ null;
+			const error = /*[[${error}]]*/ null;
+			const errorMessages = /*[[${errorMessages}]]*/ null;
+			
+			// Hiển thị thông báo thành công
+			if (successMessage) {
+				Swal.fire({
+					title: 'Success',
+					text: successMessage,
+					icon: 'success',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#28a745'
+				});
+			}
+			
+			// Hiển thị thông báo lỗi đơn
+			if (error) {
+				Swal.fire({
+					title: 'Error',
+					text: error,
+					icon: 'error',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#d33'
+				});
+			}
+			
+			// Hiển thị danh sách lỗi
+			if (errorMessages && errorMessages.length > 0) {
+				// Tạo HTML cho danh sách lỗi
+				let errorHtml = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+				errorMessages.forEach(function(error) {
+					errorHtml += '<li>' + error + '</li>';
+				});
+				errorHtml += '</ul>';
+				
+				// Hiển thị SweetAlert2 với danh sách lỗi
+				Swal.fire({
+					title: 'Đã xảy ra lỗi',
+					html: errorHtml,
+					icon: 'error',
+					confirmButtonText: 'Đóng',
+					confirmButtonColor: '#d33'
+				});
+			}
+		});
+	</script>
+</body>
+</html>

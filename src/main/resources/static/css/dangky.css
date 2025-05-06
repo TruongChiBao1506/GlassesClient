@@ -1,0 +1,53 @@
+
+section{
+    margin-left: 90px;
+}
+.link div.link-fb button.btn-facebook{
+    background: #4267b2;
+    border: none;
+    color: white;
+    width: 100%;
+    border-radius: 4px;
+}
+.link div.link-fb button.btn-facebook i{
+    margin-right: 40px;
+}
+.link div.link-fb button.btn-facebook p{
+    font-size: 20px;
+}
+.link div.link-google button.btn-google{
+    background: #f36267;
+    border: none;
+    color: white;
+    width: 100%;
+    border-radius: 4px;
+}
+.link div.link-google button.btn-google i{
+    margin-right: 40px;
+}
+.link div.link-google button.btn-google p{
+    font-size: 20px;
+}
+.body_frm{
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: top;
+    background-image:url(../images/banner/banner2.png);
+    width: 100%;
+    height: 100%;
+    font-family: Arial, Helvetica;
+    -webkit-font-smoothing: antialiased; 
+    padding-bottom: 30px;
+    padding-top: 220px;
+   }
+   
+   .container{
+     position: relative;
+     background: inherit;
+     border-radius: 2px;
+     overflow: hidden;
+     box-shadow: inset 0 0 0 200px rgba(255,255,255,0.05);
+     background: rgba(255, 255, 255, 0.603);
+   }
+   

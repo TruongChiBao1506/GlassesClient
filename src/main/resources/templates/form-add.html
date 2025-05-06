@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Glass Form</title>
+<link th:href="@{~/css/bootstrap.min.css}" rel="stylesheet">
+<link th:href="@{~/css/main.css}" rel="stylesheet">
+</head>
+<body>
+	<div class="container" style="max-width: 600px">
+		<h2 class="text-center">Glass Form</h2>
+		<div th:if="${param.success}">
+			<div class="alert alert-info">Glass information has been
+				successfully saved!</div>
+		</div>
+		<form method="post" enctype="multipart/form-data"
+			th:action="@{/products/add}" th:object="${glass}">
+
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Name</label>
+				<div class="col-sm-9">
+					<input class="form-control" id="name" name="name"
+						placeholder="Enter glass name" th:field="*{name}" type="text" />
+					<p th:if="${errors != null and errors['name'] != null}"
+						th:text="${errors['name']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Brand</label>
+				<div class="col-sm-9">
+					<input class="form-control" id="brand" name="brand"
+						placeholder="Enter brand" th:field="*{brand}" type="text" />
+					<p th:if="${errors != null and errors['brand'] != null}"
+						th:text="${errors['brand']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Price</label>
+				<div class="col-sm-9">
+					<input class="form-control" id="price" name="price"
+						placeholder="Enter price" th:field="*{price}" type="number"
+						step="0.01" />
+					<p th:if="${errors != null and errors['price'] != null}"
+						th:text="${errors['price']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Color Name</label>
+				<div class="col-sm-9">
+					<input class="form-control" id="colorName" name="colorName"
+						placeholder="Enter color name" th:field="*{colorName}" type="text" />
+					<p th:if="${errors != null and errors['colorName'] != null}"
+						th:text="${errors['colorName']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Color Code</label>
+				<div class="col-sm-9">
+					<input class="form-control" id="colorCode" name="colorCode"
+						placeholder="Enter color code" th:field="*{colorCode}" type="text" />
+					<p th:if="${errors != null and errors['colorCode'] != null}"
+						th:text="${errors['colorCode']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Image Front</label>
+				<div class="col-sm-9">
+					<input type="file" class="form-control" id="imageFrontFile"
+						name="imageFrontFile" />
+					<p th:if="${errors != null and errors['imageFrontUrl'] != null}"
+						th:text="${errors['imageFrontUrl']}" class="text-danger" ></p>
+				</div>
+				
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Image Side</label>
+				<div class="col-sm-9">
+					<input type="file" class="form-control" id="imageSideFile"
+						name="imageSideFile" />
+					<p th:if="${errors != null and errors['imageSideUrl'] != null}"
+						th:text="${errors['imageSideUrl']}" class="text-danger" ></p>
+				</div>
+				
+			</div>
+
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Gender</label>
+				<div class="col-sm-9">
+					<select class="form-select" id="gender" name="gender"
+						th:field="*{gender}">
+						<option value="true">Male</option>
+						<option value="false">Female</option>
+					</select>
+					<p th:errors="*{gender}" class="text-danger"></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Stock</label>
+				<div class="col-sm-9">
+					<input class="form-control" id="stock" name="stock"
+						placeholder="Enter stock quantity" th:field="*{stock}"
+						type="number" />
+					<p th:if="${errors != null and errors['stock'] != null}"
+						th:text="${errors['stock']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Description</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="description" name="description"
+						placeholder="Enter description" th:field="*{description}"></textarea>
+					<p th:if="${errors != null and errors['description'] != null}"
+						th:text="${errors['description']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<!-- Category -->
+			<!-- Category -->
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3" for="category">Category</label>
+				<div class="col-sm-9">
+					<select id="category" name="category" th:field="*{category.id}"
+						class="form-control">
+
+						<option th:each="category : ${categories}"
+							th:value="${category.id}" th:text="${category.name}"></option>
+					</select>
+				</div>
+			</div>
+
+
+
+			<!-- Frame Size -->
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3" for="frameSize">Frame
+					Size</label>
+				<div class="col-sm-9">
+					<select id="frameSize" name="frameSize" th:field="*{frameSize.id}"
+						class="form-control">
+						<option th:each="frame : ${framesizes}" th:value="${frame.id}"
+							th:text="${frame.bridge}"></option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Specifications -->
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3" for="specifications">Specifications</label>
+				<div class="col-sm-9">
+					<select id="specifications" name="specifications"
+						th:field="*{specifications.id}" class="form-control">
+						<option th:each="spec : ${specs}" th:value="${spec.id}"
+							th:text="${spec.material}"></option>
+					</select>
+				</div>
+			</div>
+
+
+
+			<div class="mb-3 row align-items-center">
+				<div class="col-sm-3"></div>
+				<div class="col-sm-9">
+					<button class="btn btn-primary" type="submit">Save Glass</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

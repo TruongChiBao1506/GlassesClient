@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thử kính online</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" th:href="@{/css/TryOn.css}">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" th:href="@{/css/sweetalert2.min.css}">
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    body {
+        background-color: #f8f9fa;
+        padding-top: 20px;
+    }
+    
+    .try-on-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .webcam-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .loading-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 20;
+    }
+    
+    .instructions {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        background-color: rgba(0,0,0,0.5);
+        color: white;
+        padding: 8px;
+        font-size: 14px;
+        z-index: 10;
+    }
+    
+    .selected-glass-info {
+        background-color: #f0f9ff;
+        border: 1px solid #cce5ff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .control-panel {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .control-panel h5 {
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #333;
+    }
+    
+    .action-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .action-row button {
+        flex: 1;
+    }
+    
+    #gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .gallery-item {
+        position: relative;
+        width: calc(33.333% - 10px);
+        margin-bottom: 10px;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .gallery-item img {
+        width: 100%;
+        display: block;
+    }
+    
+    .remove-btn, .download-btn {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .remove-btn {
+        right: 10px;
+        top: 10px;
+        background-color: rgba(220, 53, 69, 0.8);
+        color: white;
+    }
+    
+    .download-btn {
+        right: 10px;
+        top: 50px;
+        background-color: rgba(0, 123, 255, 0.8);
+        color: white;
+    }
+    
+    .back-button button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .back-button button:hover {
+        transform: translateX(-3px);
+    }
+    
+    @media (max-width: 768px) {
+        .gallery-item {
+            width: calc(50% - 10px);
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="try-on-container">
+        <!-- Nút quay lại trang sản phẩm -->
+        <div class="back-button mb-3">
+            <button id="back-to-products" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại trang sản phẩm
+            </button>
+        </div>
+        
+        <div class="row">
+            <!-- Phần hiển thị webcam -->
+            <div class="col-lg-8">
+                <h2 class="mb-3">Thử kính trực tuyến</h2>
+                
+                <div class="webcam-container">
+                    <video id="webcam" autoplay playsinline style="width: 100%; display: none;"></video>
+                    <canvas id="canvas" class="position-absolute top-0 start-0 w-100 h-100"></canvas>
+                    
+                    <div id="loading" class="loading-indicator">
+                        <div class="spinner-border text-light" role="status"></div>
+                        <p class="mt-2 text-light">Đang tải mô hình nhận diện khuôn mặt...</p>
+                    </div>
+                    
+                    <div id="instructions" class="instructions">
+                        <p>Đặt khuôn mặt ở chính giữa và nhìn thẳng vào camera</p>
+                    </div>
+                </div>
+                
+                <!-- Các hành động chính -->
+                <div class="action-row mt-3">
+                    <button id="capture-btn" class="btn btn-primary">
+                        <i class="fas fa-camera"></i> Chụp ảnh
+                    </button>
+                    <button id="reset-position" class="btn btn-warning">
+                        <i class="fas fa-sync"></i> Đặt lại vị trí
+                    </button>
+                </div>
+                
+                <!-- Thêm ảnh từ thiết bị -->
+                <div class="mt-2">
+                    <label for="image-upload" class="btn btn-outline-secondary">
+                        <i class="fas fa-upload"></i> Tải ảnh lên
+                    </label>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Phần điều khiển và thông tin kính -->
+            <div class="col-lg-4">
+                <!-- Thông tin kính đã chọn -->
+                <div id="selected-glass-info" class="selected-glass-info mt-4 mt-lg-0">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
+                        <p>Đang tải thông tin kính...</p>
+                    </div>
+                </div>
+                
+                <!-- Điều khiển thủ công -->
+                <div class="control-panel">
+                    <h5>Điều chỉnh kính</h5>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="trackingToggle" checked>
+                            <label class="form-check-label" for="trackingToggle">Tự động theo dõi khuôn mặt</label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap mb-2 gap-2">
+                        <button id="move-up" class="btn btn-sm btn-outline-secondary" style="width: 40px;">↑</button>
+                        <button id="move-down" class="btn btn-sm btn-outline-secondary" style="width: 40px;">↓</button>
+                        <button id="move-left" class="btn btn-sm btn-outline-secondary" style="width: 40px;">←</button>
+                        <button id="move-right" class="btn btn-sm btn-outline-secondary" style="width: 40px;">→</button>
+                        <button id="size-smaller" class="btn btn-sm btn-outline-info" style="flex: 1;">Nhỏ hơn</button>
+                        <button id="size-larger" class="btn btn-sm btn-outline-info" style="flex: 1;">Lớn hơn</button>
+                    </div>
+                    
+                    <p class="small text-muted text-center mb-0">
+                        Bạn cũng có thể kéo thả kính trực tiếp để điều chỉnh vị trí
+                    </p>
+                </div>
+                
+                <!-- Bộ sưu tập ảnh -->
+                <div class="mt-4">
+                    <h5>Bộ sưu tập ảnh</h5>
+                    <div id="gallery"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script thư viện -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+    
+    <!-- Script xử lý sự kiện -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý nút quay lại trang sản phẩm
+            document.getElementById('back-to-products').addEventListener('click', function() {
+                window.history.back();
+            });
+            
+            // Kiểm tra tham số URL và dữ liệu từ localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const glassesIdFromUrl = urlParams.get('glassesId');
+            const storedGlassData = localStorage.getItem('glassData');
+            
+            if (storedGlassData) {
+                console.log("Đã nhận dữ liệu kính từ trang sản phẩm:", storedGlassData);
+            } else if (glassesIdFromUrl) {
+                console.log("Đã nhận tham số glassesId từ URL:", glassesIdFromUrl);
+            }
+        });
+    </script>
+    
+    <!-- Script xử lý thông báo lỗi -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý lỗi khi tải mô hình hoặc xử lý ảnh
+            window.handleVirtualTryOnError = function(errorMessage) {
+                Swal.fire({
+                    title: 'Đã xảy ra lỗi',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#d33'
+                });
+            };
+            
+            // Kiểm tra thông báo lỗi từ server
+            const errorMessages = /*[[${errorMessages}]]*/ null;
+            if (errorMessages && errorMessages.length > 0) {
+                // Tạo HTML cho danh sách lỗi
+                let errorHtml = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+                errorMessages.forEach(function(error) {
+                    errorHtml += '<li>' + error + '</li>';
+                });
+                errorHtml += '</ul>';
+                
+                // Hiển thị SweetAlert2 với danh sách lỗi
+                Swal.fire({
+                    title: 'Đã xảy ra lỗi',
+                    html: errorHtml,
+                    icon: 'error',
+                    confirmButtonText: 'Đóng',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

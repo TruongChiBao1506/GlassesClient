@@ -1,0 +1,109 @@
+/*New*/
+
+header {
+    top: 0;
+}
+
+.shop {
+    display: inline-block;
+    align-items: right;
+    line-height: 100px;
+    letter-spacing: 0.5px;
+}
+
+.bi-search,
+.bi-cart3,
+.bi-person {
+    color: black;
+    font-size: 30px;
+}
+
+.shop1 {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+/*New*/
+
+.banner0 {
+    width: 100%;
+    margin-top: 30vh;
+    position: relative;
+    border-radius: 30px;
+}
+
+.text0 {
+    position: absolute;
+    font-weight: 600;
+    top: 40%;
+    left: 15%;
+}
+
+.bestsl {
+    position: relative;
+    background-color: #e5e3e3;
+    border-bottom: 5px solid #6b2d75;
+}
+
+.k1 {
+    background-color: #e5e3e3;
+}
+
+.k2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #e5e3e3;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.k2:hover {
+    opacity: 1;
+}
+
+.name {
+    position: absolute;
+    top: 100%;
+}
+
+.caption {
+    font-size: 30px;
+}
+
+.cap1 {
+    font-size: 18px;
+    color: rgb(65, 65, 65);
+}
+
+.back1 {
+    background-image: linear-gradient(to right, rgb(182, 229, 255), rgb(211, 191, 250));
+}
+
+.banner1 {
+    position: relative;
+    width: 100%;
+    height: 55vh;
+    background-image: url("../img/end1.jpg");
+    background-size: 100%;
+    border-radius: 30px;
+}
+
+.text1 {
+    position: absolute;
+    font-weight: 600;
+    top: 20%;
+    left: 10%;
+}
+
+.text2 {
+    position: absolute;
+    font-weight: 500;
+    font-size: 30px;
+    top: 35%;
+    left: 10%;
+    margin-right: 50%;
+    line-height: 40px;
+}

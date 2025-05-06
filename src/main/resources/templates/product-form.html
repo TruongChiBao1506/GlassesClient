@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Edit Product</title>
+<link th:href="@{~/css/bootstrap.min.css}" rel="stylesheet">
+<link th:href="@{~/css/main.css}" rel="stylesheet">
+</head>
+<body>
+	<div class="container" style="max-width: 600px">
+		<h2 class="text-center">Edit Product</h2>
+		<form method="post"
+			th:action="@{/products/update/{id}(id=${product.id})}"
+			th:object="${product}" enctype="multipart/form-data">
+			<div class="mb-3">
+				<label for="name" class="form-label">Product Name</label> 
+				<input
+					type="text" class="form-control" id="name" name="name"
+					th:field="*{name}" placeholder="Enter product name">
+				<p th:if="${errors != null and errors['name'] != null}"
+					th:text="${errors['name']}" class="text-danger"></p>
+
+			</div>
+
+			<div class="mb-3">
+				<label for="brand" class="form-label">Brand</label> <input
+					type="text" class="form-control" id="brand" name="brand"
+					th:field="*{brand}" placeholder="Enter brand name" >
+					<p th:if="${errors != null and errors['brand'] != null}"
+						th:text="${errors['brand']}" class="text-danger" ></p>
+			</div>
+
+			<div class="mb-3">
+				<label for="price" class="form-label">Price</label> <input
+					type="number" class="form-control" id="price" name="price"
+					th:field="*{price}" step="0.01">
+					<p th:if="${errors != null and errors['price'] != null}"
+						th:text="${errors['price']}" class="text-danger" ></p>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label col-sm-3">Stock</label>
+					<input class="form-control" id="stock" name="stock"
+						placeholder="Enter stock quantity" th:field="*{stock}"
+						type="number" />
+					<p th:if="${errors != null and errors['stock'] != null}"
+						th:text="${errors['stock']}" class="text-danger" ></p>
+			</div>
+
+			<div class="mb-3">
+				<label for="colorName" class="form-label">Color Name</label> <input
+					type="text" class="form-control" id="colorName" name="colorName"
+					th:field="*{colorName}" >
+				<p th:if="${errors != null and errors['colorName'] != null}"
+						th:text="${errors['colorName']}" class="text-danger" ></p>
+			</div>
+
+			<div class="mb-3">
+				<label for="colorCode" class="form-label">Color Code</label> <input
+					type="text" class="form-control" id="colorCode" name="colorCode"
+					th:field="*{colorCode}" >
+					<p th:if="${errors != null and errors['colorCode'] != null}"
+						th:text="${errors['colorCode']}" class="text-danger" ></p>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Image Front</label>
+				<div class="col-sm-9">
+					<input type="file" class="form-control" id="imageFrontFile"
+						name="imageFrontFile" />
+					<!-- Display current image URL if available -->
+					<div th:if="${product.imageFrontUrl}">
+						<p>
+							Current Image Front URL: <span th:text="${product.imageFrontUrl}"></span>
+						</p>
+					</div>
+					<p th:if="${errors != null and errors['imageFrontUrl'] != null}"
+						th:text="${errors['imageFrontUrl']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3 row align-items-center">
+				<label class="form-label col-sm-3">Image Side</label>
+				<div class="col-sm-9">
+					<input type="file" class="form-control" id="imageSideFile"
+						name="imageSideFile" />
+					<!-- Display current image URL if available -->
+					<div th:if="${product.imageSideUrl}">
+						<p>
+							Current Image Side URL: <span th:text="${product.imageSideUrl}"></span>
+						</p>
+					</div>
+					<p th:if="${errors != null and errors['imageSideUrl'] != null}"
+						th:text="${errors['imageSideUrl']}" class="text-danger" ></p>
+				</div>
+			</div>
+
+			<div class="mb-3">
+				<label for="colorCode" class="form-label">Description</label>
+				<textarea class="form-control" id="description" name="description"
+					placeholder="Enter description" th:field="*{description}"></textarea>
+				<p th:if="${errors != null and errors['description'] != null}"
+						th:text="${errors['description']}" class="text-danger" ></p>
+			</div>
+
+ 
+			<div class="mb-3">
+				<label for="category" class="form-label">Category</label> <select
+					class="form-control" id="category" name="category"
+					th:field="*{category.id}">
+					<option th:each="category : ${categories}"
+						th:value="${category.id}" th:text="${category.name}"
+						th:selected="*{category.id} == ${product.category.id}"></option>
+				</select>
+			</div>
+
+			<div class="mb-3">
+				<label for="frameSize" class="form-label">Frame Size</label> <select
+					class="form-control" id="frameSize" name="frameSize"
+					th:field="*{frameSize.id}">
+					<option th:each="frame : ${frameSizes}" th:value="${frame.id}"
+						th:text="${frame.bridge}"
+						th:selected="*{frameSize.id} == ${product.frameSize.id}"></option>
+				</select>
+			</div>
+
+				<div class="mb-3">
+				<label for="specifications" class="form-label">Specifications</label>
+				<select class="form-control" id="specifications"
+					name="specifications" th:field="*{specifications.id}">
+					<option th:each="spec : ${specifications}" th:value="${spec.id}"
+						th:text="${spec.material}"
+						th:selected="*{specifications.id} == ${product.specifications.id}"></option>
+				</select>
+			</div>
+
+			<div class="mb-3">
+				<button type="submit" class="btn btn-primary">Save Product</button>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

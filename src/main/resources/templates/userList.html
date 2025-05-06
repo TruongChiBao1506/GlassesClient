@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard - Users</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<!-- Montserrat Font -->
+<link
+	href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+	rel="stylesheet">
+
+<!-- Material Icons -->
+<link
+	href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+	rel="stylesheet">
+<!-- Custom CSS -->
+<link rel="stylesheet" th:href="@{/css/userList.css}">
+<link rel="stylesheet" th:href="@{/css/admin-dropdowns.css}">
+<link rel="stylesheet" th:href="@{/css/sweetalert2.min.css}">
+</head>
+<body>
+	<div class="grid-container">
+		<input type="hidden" id="token" th:value="${token}">
+		<!-- Header -->
+		<header class="header">
+			<div class="menu-icon" onclick="openSidebar()">
+				<span class="material-icons-outlined">menu</span>
+			</div>
+			<div class="header-left"></div>
+			<div class="header-right">
+				<div class="notification-container">
+					<div
+						th:if="${notifications != null and !#lists.isEmpty(notifications)}">
+						<span class="notification-dot active"></span>
+					</div>
+					<div
+						th:if="${notifications == null or #lists.isEmpty(notifications)}">
+						<span class="notification-dot"></span>
+					</div>
+					<button id="notification-btn">
+						<span class="material-icons-outlined">notifications</span>
+					</button>
+					<div id="notification-popup" class="notification-popup">
+						<h3>Thông báo</h3>
+						<div th:if="${notifications == null or notifications.isEmpty()}">Chưa
+							có thông báo</div>
+						<ul>
+							<li th:each="notification : ${notifications}">
+								<div class="notification-item notification-info" th:id="'notification-'+${notification.id}">
+									<div class="notification-icon">
+										<span class="material-icons-outlined">info</span>
+									</div>
+									<div class="notification-content">
+										<div class="notification-header">
+											<span class="notification-title">Thông báo</span>
+										</div>
+										<p class="notification-message" th:text="${notification.message}"></p>
+										<div class="notification-actions">
+											<button class="mark-as-read-btn" th:onclick="'markAsRead('+${notification.id}+')'">
+												<span class="material-icons-outlined" style="font-size: 14px; margin-right: 4px;">check_circle</span>
+												Đánh dấu đã đọc
+											</button>
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="user-account">
+					<button id="account-btn">
+						<span class="material-icons-outlined">account_circle</span>
+					</button>
+					<div id="account-popup" class="account-popup">
+						<a class="dropdown-item" th:href="@{/profile}">
+							<span class="material-icons-outlined" style="font-size: 18px; margin-right: 8px;">person</span>
+							Xem thông tin cá nhân
+						</a>
+						<a class="dropdown-item" th:href="@{/changePassword}">
+							<span class="material-icons-outlined" style="font-size: 18px; margin-right: 8px;">lock</span>
+							Đổi mật khẩu
+						</a>
+						<a class="dropdown-item" th:href="@{/logout}">
+							<span class="material-icons-outlined" style="font-size: 18px; margin-right: 8px;">logout</span>
+							Đăng xuất
+						</a>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<!-- Sidebar -->
+		<aside id="sidebar">
+			<div class="sidebar-title">
+				<div class="sidebar-brand">
+					<span class="material-icons-outlined">shopping_cart</span> STORE
+				</div>
+				<span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+			</div>
+
+			<ul class="sidebar-list">
+				<li class="sidebar-list-item"><a th:href="@{/admin-dashboard}">
+						<span class="material-icons-outlined">dashboard</span> Dashboard
+				</a></li>
+				<li class="sidebar-list-item"><a th:href="@{/products}"> <span
+						class="material-icons-outlined">inventory_2</span> Products
+				</a></li>
+				<li class="sidebar-list-item"><a th:href="@{/userList}"> <span
+						class="material-icons-outlined">groups</span> Users
+				</a></li>
+				<li class="sidebar-list-item"><a th:href="@{/orderList}"> <span
+						class="material-icons-outlined">fact_check</span> Orders
+				</a></li>
+				<li class="sidebar-list-item has-submenu"><a
+					href="javascript:void(0);"
+					onclick="toggleSubmenu('reports-submenu')"> <span
+						class="material-icons-outlined">poll</span> Reports <span
+						class="material-icons-outlined dropdown-icon"
+						style="margin-top: 10px">expand_more</span>
+				</a>
+					<ul class="submenu" id="reports-submenu">
+						<li><a th:href="@{/report/order-report}">Orders Report</a></li>
+					</ul></li>
+			</ul>
+		</aside>
+
+		<!-- Main -->
+		<main class="main-container">
+			<div class="main-title">
+				<h2>USER MANAGEMENT</h2>
+			</div>
+
+			<!-- Container thông báo thành công - ẩn thông báo cũ, sẽ hiển thị bằng SweetAlert2 -->
+			<div class="success-notification-container d-none" id="successContainer">
+				<div th:if="${success}"
+					class="alert alert-success alert-dismissible fade show success-alert d-none"
+					role="alert">
+					<i class="fas fa-check-circle me-2"></i> <span th:text="${success}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"
+						aria-label="Close"></button>
+				</div>
+			</div>
+			<!-- Container thông báo lỗi - ẩn thông báo cũ -->
+			<div th:if="${error}"
+				class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+				<i class="fas fa-exclamation-circle me-2"></i> <span
+					th:text="${error}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert"
+					aria-label="Close"></button>
+			</div>
+
+			<div class="user-table-container">
+				<div class="table-header">
+					<h3>Users List</h3>
+					<form th:action="@{/users/filter}" method="get">
+						<table>
+							<tr>
+								<td><input type="text" name="keyword" class="form-control"
+									placeholder="Search..." /></td>
+								<td><select name="gender" class="form-select">
+										<option value="">Gender</option>
+										<option value="Male">Male</option>
+										<option value="Female">Female</option>
+								</select></td>
+								<td><select name="role" class="form-select">
+										<option value="">Role</option>
+										<option value="USER">USER</option>
+										<option value="ADMIN">ADMIN</option>
+										<option value="SUPER">SUPER</option>
+								</select></td>
+								<td>
+									<button type="submit" class="btn btn-primary">Tìm kiếm</button>
+								</td>
+							</tr>
+						</table>
+					</form>
+					<a th:if="${role != 'ADMIN'}" th:href="@{/usersAdd}"
+						style="text-decoration: none;">
+						<button class="add-user-btn">
+							<span class="material-icons-outlined ico">person_add</span> Add
+							New User
+						</button>
+					</a>
+				</div>
+				<div class="table-responsive">
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Username</th>
+								<th>Email</th>
+								<th>Dob</th>
+								<th>Phone</th>
+								<th>Address</th>
+								<th>Gender</th>
+								<th>Role</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="user : ${users}">
+								<td th:text="${user.id}"></td>
+								<td th:text="${user.username}"></td>
+								<td th:text="${user.email}"></td>
+								<td th:text="${user.dob}"></td>
+								<td th:text="${user.phone}"></td>
+								<td th:text="${user.address}"></td>
+								<td th:text="${user.gender ? 'Male' : 'Female'}"></td>
+								<td><span class="badge" th:text="${user.role}"></span></td>
+								<td>
+									<div class="action-buttons">
+										<a th:href="@{/users/details/{userId}(userId=${user.id})}"
+											title="View User Details">
+											<button class="view-btn">
+												<span class="material-icons-outlined ico">visibility</span>
+											</button>
+										</a>
+
+										<!-- <button class="update-btn" th:href="@{/user/update/{userId}(userId=${user.id})}">
+							                <span class="material-icons-outlined ico">edit</span>
+							            </button> -->
+										<a th:if="${role != 'ADMIN'}"
+											th:href="@{/users/update/{userId}(userId=${user.id})}"
+											title="Update User">
+											<button class="update-btn">
+												<span class="material-icons-outlined ico">edit</span>
+											</button>
+										</a>
+
+										<button class="delete-btn">
+											<span class="material-icons-outlined ico">delete</span>
+										</button>
+
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</main>
+	</div>
+	<script th:src="@{/js/sweetalert2.all.min.js}"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script th:src="@{/js/header.js}"></script>
+	<script th:src="@{/js/notification-websocket.js}"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tự động ẩn thông báo thành công sau 5 giây
+            const successContainer = document.getElementById('successContainer');
+            if (successContainer) {
+                setTimeout(() => {
+                    successContainer.style.display = 'none';
+                }, 5000);
+            }
+        });    		
+    </script>
+	<script>
+    function toggleSubmenu(submenuId) {
+        const submenu = document.getElementById(submenuId);
+        const parent = submenu.closest('.has-submenu');
+        
+        if (submenu.style.display === 'block') {
+            submenu.style.display = 'none';
+            parent.classList.remove('open');
+        } else {
+            submenu.style.display = 'block';
+            parent.classList.add('open');
+        }
+    }
+</script>
+	<script>
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            const userId = row.querySelector('td:first-child').textContent;
+            console.log(userId);
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Có, xóa!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {                   	
+                    fetch(`/users/delete/${userId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            row.remove();
+                            Swal.fire(
+                                'Đã xóa!',
+                                'Người dùng đã được xóa thành công.',
+                                'success'
+                            );
+                        } else {
+                            throw new Error('Có lỗi xảy ra khi xóa người dùng!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Lỗi!',
+                            error.message,
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+	</script>
+	<!-- Script hiển thị thông báo SweetAlert2 -->
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', function() {
+			// Lấy thông báo từ server
+			const success = /*[[${success}]]*/ null;
+			const error = /*[[${error}]]*/ null;
+			
+			// Hiển thị thông báo thành công
+			if (success) {
+				Swal.fire({
+					title: 'Success',
+					text: success,
+					icon: 'success',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#28a745'
+				});
+			}
+			
+			// Hiển thị thông báo lỗi đơn
+			if (error) {
+				Swal.fire({
+					title: 'Error',
+					text: error,
+					icon: 'error',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#d33'
+				});
+			}
+			
+			// Hiển thị danh sách các thông báo lỗi
+			const errorMessages = /*[[${errorMessages}]]*/ null;
+			if (errorMessages && errorMessages.length > 0) {
+				// Tạo nội dung HTML cho danh sách lỗi
+				let errorContent = '<ul style="text-align: left; list-style-type: disc; padding-left: 20px;">';
+				for (let i = 0; i < errorMessages.length; i++) {
+					errorContent += '<li>' + errorMessages[i] + '</li>';
+				}
+				errorContent += '</ul>';
+				
+				Swal.fire({
+					title: 'An error has occurred',
+					html: errorContent,
+					icon: 'error',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#d33'
+				});
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title th:text="${category} + ' | ' + ${gender}">Eyeglasses |
+	Men</title>
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+
+
+<!-- FONT GOOGLE -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap"
+	rel="stylesheet">
+
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+	integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+	crossorigin="anonymous" />
+
+<!-- OWL CAROUSEL -->
+<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+<link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" th:href="@{/css/index.css}">
+<link rel="stylesheet" th:href="@{/css/kinhnam.css}">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<!-- SweetAlert2 CSS và JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    /* CSS cho nút "Thử Ngay" và các phần tử tương tác */
+    .product-card {
+        position: relative;
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .product-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        padding: 10px;
+        background-color: #ffffff;
+    }
+    
+    .image-container {
+        position: relative;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .front-image, .side-image {
+        max-width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+        transition: opacity 0.5s ease;
+    }
+    
+    .side-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+    }
+    
+    .product-image-wrapper:hover .front-image {
+        opacity: 0;
+    }
+    
+    .product-image-wrapper:hover .side-image {
+        opacity: 1;
+    }
+    
+    .product-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .product-image-wrapper:hover .product-actions {
+        opacity: 1;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .action-btn.quick-view:hover {
+        background-color: #f1f1f1;
+        transform: translateY(-2px);
+    }
+    
+    .action-btn.try-on {
+        background-color: #00b4ca;
+        color: white;
+    }
+    
+    .action-btn.try-on:hover {
+        background-color: #009cb0;
+        transform: translateY(-2px);
+    }
+    
+    .product-info {
+        padding: 15px;
+        background-color: #f8f8f8;
+    }
+    
+    .product-brand {
+        font-size: 12px;
+        color: #777;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .product-name {
+        font-size: 16px;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    
+    .product-name a {
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .product-name a:hover {
+        color: #00b4ca;
+    }
+    
+    .color-display {
+        margin-bottom: 10px;
+    }
+    
+    .color-dot {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+    }
+    
+    .price-container {
+        margin-bottom: 10px;
+    }
+    
+    .current-price {
+        font-weight: bold;
+        color: #e63946;
+        font-size: 16px;
+    }
+    
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        margin-left: 5px;
+        font-size: 14px;
+    }
+    
+    .try-now-container .btn {
+        background-color: #00b4ca;
+        border-color: #009cb0;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .try-now-container .btn:hover {
+        background-color: #009cb0;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Badge giảm giá */
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #e63946;
+        color: white;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 4px;
+        z-index: 1;
+    }
+</style>
+
+</head>
+
+<body>
+	<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"
+							th:text="${cartQuantity > 0 ? cartQuantity : ''}"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông
+										tin cá nhân</a> <a class="dropdown-item"
+										th:href="@{/changePassword}">Đổi mật khẩu</a> <a
+										class="dropdown-item" th:href="@{/orderHistory}">Lịch sử
+										mua hàng</a> <a class="dropdown-item" th:href="@{/logout}">Đăng
+										xuất</a>
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item"><a class="nav-link" th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"
+						th:classappend="${category == 'Eyeglasses' ? 'active' : ''}"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
+								Eyeglasses</a> <a class="dropdown-item"
+								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"
+						th:classappend="${category == 'Sunglasses' ? 'active' : ''}"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
+								Sunglasses</a> <a class="dropdown-item"
+								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/about}">About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div id="loginPopup" class="popup" th:if="${popup}">
+		<div class="popup-content">
+			<span class="close" onclick="closePopup()">&times;</span>
+			<div class="popup-body">
+				<h4>Chú ý</h4>
+				<p>Bạn phải đăng nhập trước khi vào giỏ hàng để thanh toán</p>
+				<div class="popup-buttons">
+					<a th:href="@{/login}" class="login-btn">Đăng nhập</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row m-5 banner2">
+		<div class="row m-3 banner0">
+			<div th:if="${category == 'Eyeglasses' && gender == 'Men'}"
+				class="text0 display-4 col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 text-light">Men's
+				Eyeglasses</div>
+			<div th:if="${category == 'Eyeglasses' && gender == 'Women'}"
+				class="text0 display-4 col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 text-light">Women's
+				Eyeglasses</div>
+			<div th:if="${category == 'Sunglasses' && gender == 'Men'}"
+				class="text0 display-4 col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 text-light">Men's
+				Sunglasses</div>
+			<div th:if="${category == 'Sunglasses' && gender == 'Women'}"
+				class="text0 display-4 col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 text-light">Women's
+				Sunglasses</div>
+		</div>
+	</div>
+	<div class="filter-section">
+		<form th:action="@{'/products/eyeglasses/' + ${gender.toLowerCase()}}" method="get" class="filter-form">
+			<!-- Price Range Row -->
+			<div class="filter-row">
+				<div class="price-range-container">
+					<label class="filter-label">Price Range</label>
+					<div class="price-inputs">
+						<input type="text" class="form-control" id="priceMin" name="priceMin" placeholder="Min price">
+						<span class="price-separator">-</span>
+						<input type="text" class="form-control" id="priceMax" name="priceMax" placeholder="Max price">
+					</div>
+				</div>
+			</div>
+			
+			<!-- Filters Bottom Row -->
+			<div class="filter-row filters-bottom-row">
+				<!-- Brand Filter -->
+				<div class="filter-group">
+					<button type="button" class="filter-toggle" onclick="toggleDropdown('brandDropdown')">
+						Brand
+						<i class="chevron-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</i>
+					</button>
+					<div class="dropdown-panel" id="brandDropdown">
+						<div class="dropdown-search">
+							<input type="text" placeholder="Search brands" onkeyup="filterOptions(this, 'brandDropdown')">
+						</div>
+						<div class="dropdown-options">
+							<label th:each="brand: ${brands}" class="dropdown-option">
+								<input type="checkbox" name="brand" th:value="${brand}">
+								<span th:text="${brand}"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Color Filter -->
+				<div class="filter-group">
+					<button type="button" class="filter-toggle" onclick="toggleDropdown('colorDropdown')">
+						Color
+						<i class="chevron-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</i>
+					</button>
+					<div class="dropdown-panel" id="colorDropdown">
+						<div class="dropdown-options">
+							<label th:each="color: ${colors}" class="dropdown-option">
+								<input type="checkbox" name="color" th:value="${color}">
+								<span th:text="${color}"></span>
+								<span class="color-preview" th:style="'background-color:' + ${color.toLowerCase() == 'black' ? '#000' : color.toLowerCase() == 'brown' ? '#a52a2a' : color.toLowerCase() == 'blue' ? '#0000ff' : color.toLowerCase() == 'green' ? '#008000' : color.toLowerCase() == 'red' ? '#ff0000' : color.toLowerCase() == 'gold' ? '#ffd700' : color.toLowerCase() == 'silver' ? '#c0c0c0' : '#ffffff'}"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Frame Shape Filter -->
+				<div class="filter-group">
+					<button type="button" class="filter-toggle" onclick="toggleDropdown('shapeDropdown')">
+						Frame Shape
+						<i class="chevron-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</i>
+					</button>
+					<div class="dropdown-panel" id="shapeDropdown">
+						<div class="dropdown-options">
+							<label th:each="shape: ${shapes}" class="dropdown-option">
+								<input type="checkbox" name="shape" th:value="${shape}">
+								<span th:text="${shape}"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Material Filter -->
+				<div class="filter-group">
+					<button type="button" class="filter-toggle" onclick="toggleDropdown('materialDropdown')">
+						Material
+						<i class="chevron-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+								<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</i>
+					</button>
+					<div class="dropdown-panel" id="materialDropdown">
+						<div class="dropdown-options">
+							<label th:each="material: ${materials}" class="dropdown-option">
+								<input type="checkbox" name="material" th:value="${material}">
+								<span th:text="${material}"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Filter Button -->
+				<div class="filter-btn-wrapper">
+					<button type="submit" class="filter-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+							<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+						</svg>
+						Filter
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<style>
+		/* Filter Section Styles */
+		.filter-section {
+			max-width: 1200px;
+			margin: 0 auto 30px;
+			padding: 20px 30px;
+			background-color: #f9f9fa;
+			border-radius: 8px;
+			box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+		}
+
+		.filter-form {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		/* Filter Row Layout */
+		.filter-row {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			width: 100%;
+			max-width: 1000px;
+		}
+
+		.filter-row:first-child {
+			margin-bottom: 15px;
+		}
+
+		.filters-bottom-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		/* Price Range Styles */
+		.price-range-container {
+			max-width: 400px;
+			width: 100%;
+		}
+
+		.filter-label {
+			display: block;
+			font-size: 15px;
+			font-weight: 500;
+			color: #333;
+			margin-bottom: 10px;
+		}
+
+		.price-inputs {
+			display: flex;
+			align-items: center;
+		}
+
+		.price-inputs input {
+			flex: 1;
+			height: 40px;
+			padding: 8px 15px;
+			border: 1px solid #dee2e6;
+			border-radius: 4px;
+			font-size: 14px;
+		}
+
+		.price-separator {
+			margin: 0 10px;
+			color: #6c757d;
+		}
+
+		/* Filter Group Styles */
+		.filter-group {
+			position: relative;
+			margin-right: 10px;
+		}
+
+		.filter-toggle {
+			min-width: 150px;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 15px;
+			background-color: #fff;
+			border: 1px solid #dee2e6;
+			border-radius: 4px;
+			font-size: 14px;
+			color: #333;
+			cursor: pointer;
+		}
+
+		.chevron-icon {
+			margin-left: 5px;
+			display: flex;
+			align-items: center;
+		}
+
+		/* Dropdown Panel */
+		.dropdown-panel {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			min-width: 150px;
+			background-color: #fff;
+			border-radius: 4px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+			z-index: 1000;
+			margin-top: 4px;
+			padding: 8px 0;
+		}
+
+		/* Search in Dropdown */
+		.dropdown-search {
+			padding: 0 10px 8px;
+			border-bottom: 1px solid #eee;
+			margin-bottom: 4px;
+		}
+
+		.dropdown-search input {
+			width: 100%;
+			padding: 6px 10px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 13px;
+		}
+
+		/* Options in Dropdown */
+		.dropdown-options {
+			max-height: 220px;
+			overflow-y: auto;
+			padding: 4px 0;
+		}
+
+		.dropdown-option {
+			display: flex;
+			align-items: center;
+			padding: 6px 12px;
+			margin: 0;
+			cursor: pointer;
+			width: 100%;
+		}
+
+		.dropdown-option:hover {
+			background-color: #f8f9fa;
+		}
+
+		.dropdown-option input[type="checkbox"] {
+			margin-right: 8px;
+		}
+
+		/* Color Preview */
+		.color-preview {
+			display: inline-block;
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			border: 1px solid #ddd;
+			margin-left: 5px;
+		}
+
+		/* Filter Button */
+		.filter-btn-wrapper {
+			margin-left: 0;
+		}
+
+		.filter-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 40px;
+			padding: 0 20px;
+			background-color: #00b4ca;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background-color 0.2s;
+		}
+
+		.filter-btn svg {
+			margin-right: 8px;
+		}
+
+		.filter-btn:hover {
+			background-color: #009cb0;
+		}
+
+		/* Responsive Design */
+		@media (max-width: 992px) {
+			.filter-row {
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.price-range-container {
+				width: 100%;
+				max-width: 500px;
+				margin-bottom: 15px;
+			}
+			
+			.filters-bottom-row {
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+
+			.filter-group {
+				margin-bottom: 10px;
+				margin-right: 5px;
+				width: calc(50% - 10px);
+			}
+
+			.filter-toggle {
+				width: 100%;
+			}
+			
+			.filter-btn-wrapper {
+				margin-top: 10px;
+				width: 100%;
+				max-width: 500px;
+			}
+			
+			.filter-btn {
+				width: 100%;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.filter-group {
+				width: 100%;
+				margin-right: 0;
+			}
+		}
+	</style>
+
+	<script>
+		function toggleDropdown(dropdownId) {
+			const dropdown = document.getElementById(dropdownId);
+			const allDropdowns = document.querySelectorAll('.dropdown-panel');
+			
+			// Close all other dropdowns
+			allDropdowns.forEach(el => {
+				if (el.id !== dropdownId && el.style.display === 'block') {
+					el.style.display = 'none';
+				}
+			});
+			
+			// Toggle current dropdown
+			if (dropdown.style.display === 'block') {
+				dropdown.style.display = 'none';
+			} else {
+				dropdown.style.display = 'block';
+			}
+		}
+		
+		// Filter options in dropdown based on search
+		function filterOptions(input, dropdownId) {
+			const filter = input.value.toUpperCase();
+			const dropdown = document.getElementById(dropdownId);
+			const options = dropdown.querySelectorAll('.dropdown-option');
+			
+			options.forEach(option => {
+				const text = option.textContent || option.innerText;
+				if (text.toUpperCase().indexOf(filter) > -1) {
+					option.style.display = '';
+				} else {
+					option.style.display = 'none';
+				}
+			});
+		}
+		
+		// Close dropdowns when clicking outside
+		document.addEventListener('click', function(event) {
+			if (!event.target.closest('.filter-group')) {
+				const dropdowns = document.querySelectorAll('.dropdown-panel');
+				dropdowns.forEach(dropdown => {
+					dropdown.style.display = 'none';
+				});
+			}
+		});
+	</script>
+	<div>
+		<section class="section1">
+			<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 row"
+				style="margin-left: 0px; margin-right: 10px">
+				<h6 th:if="${#lists.isEmpty(glasses)}"
+					style="margin: 0 auto; color: #676f78">Chưa có sản phẩm nào.</h6>
+				<div class="col-md-3 mb-4" th:if="${glasses}" th:each="glass: ${glasses}">
+					<div class="product-card">
+						<!-- Badge giảm giá nếu có -->
+						<!--  <div class="discount-badge" th:if="${glass.discount > 0}" th:text="'-' + ${glass.discount} + '%'">-15%</div>-->
+						
+						<!-- Phần hình ảnh với hiệu ứng chuyển đổi -->
+						<div class="product-image-wrapper">
+							<a th:href="@{/products/glasses/{id}(id=${glass.id})}">
+								<div class="image-container">
+									<img th:src="@{${glass.imageFrontUrl}}" alt="Front view" class="front-image">
+									<img th:src="@{${glass.imageSideUrl}}" alt="Side view" class="side-image">
+								</div>
+							</a>
+							
+							<!-- Nút tương tác sản phẩm -->
+							<div class="product-actions">
+								<a th:href="@{/products/glasses/{id}(id=${glass.id})}" class="action-btn quick-view" title="Xem chi tiết">
+									<i class="fas fa-eye"></i>
+								</a>
+								<a th:href="@{/products/try-on(glassesId=${glass.id})}" class="action-btn try-on" title="Thử ngay">
+									<i class="fas fa-glasses"></i>
+								</a>
+							</div>
+						</div>
+						
+						<!-- Thông tin sản phẩm -->
+						<div class="product-info">
+							<div class="product-brand" th:text="${glass.brand}">Ray-Ban</div>
+							<h3 class="product-name">
+								<a th:href="@{/products/glasses/{id}(id=${glass.id})}" th:text="${glass.name}">Classic Wayfarer</a>
+							</h3>
+							
+							<!-- Màu sắc sản phẩm -->
+							<div class="color-display">
+								<span class="color-dot" th:style="'background-color: ' + ${glass.colorCode}" th:title="${glass.colorCode}"></span>
+							</div>
+							
+							<!-- Hiển thị giá -->
+							<div class="price-container">
+								<span class="current-price" th:text="${T(iuh.fit.se.utils.Utils).formatPrice(glass.price)}">350,000₫</span>
+								<!-- <span class="original-price" th:if="${glass.discount > 0}" 
+									th:text="${T(iuh.fit.se.utils.Utils).formatPrice(glass.price * (100 + glass.discount) / 100)}">400,000₫</span> -->
+							</div>
+						
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+	</div>
+
+	<br>
+	<section class="row section1">
+		<div class="col-1"></div>
+		<div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 row">
+		</div>
+		<div class="col-1"></div>
+	</section>
+	<a href="" style="text-decoration: none; color: black;">
+		<div class="row m-5">
+			<div class="row m-3 banner1">
+				<h1 class="display-5 text1">Shop online and enjoy in-store
+					services</h1>
+				<h1 class="text2">Explore the full range of personalized
+					services from pick up in store to fitting & adjustments</h1>
+			</div>
+		</div>
+	</a>
+	<footer>
+		<div class="footer__top section">
+			<div class="container">
+				<div class="footer__grid row">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>About Us</h3>
+						<p>We are an eyewear store that offers a wide selection of
+							fashionable and functional glasses from top brands. Our friendly
+							staff are always ready to assist you in finding the perfect pair
+							of glasses to match your style and budget. Come visit us and see
+							the world in a new light!</p>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Latest News</h3>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Services</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Glasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Sunglasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Accessories</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Products</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Gift
+								Card</a>
+						</div>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Contact Info</h3>
+						<div class="footer__contact">
+							<i class="fa fa-map-marker-alt"></i> <a href="#">112 Cao
+								Thắng, Quận 3 – HCM</a>
+						</div>
+						<div class="footer__contact">
+							<i class="far fa-envelope"></i> <a
+								href="mailto:ndat04913@gmail.com">ndat04913@gmail.com</a>
+						</div>
+						<div class="footer__contact">
+							<i class="fas fa-phone-alt"></i> <a href="tel:0966894644">096.689.4644</a>
+						</div>
+					</div>
+				</div>
+				<div class="footer__form">
+					<form>
+						<div class="form-group form-row">
+							<label
+								class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 col-form-label"
+								for="emailFooter">Sign up for our Newsletter</label>
+							<div class="col-8 col-sm-8 col-md-8 col-lg-6 col-xl-6">
+								<input type="email" class="form-control" id="emailFooter"
+									placeholder="Enter Email Address ...">
+							</div>
+							<div
+								class="col-4 col-sm-4 col-md-4 col-lg-2 col-xl-2 text-center">
+								<button type="submit" class="btn">SUBMIT</button>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="footer__bottom">
+			<div>
+				© 2024 Instruction. All rights reserved | Design by <a href="#">Nhóm
+					10</a>
+			</div>
+		</div>
+	</footer>
+	<script th:src="@{/js/jquery.min.js}"></script>
+	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/js/owl.carousel.min.js}"></script>
+	<script th:src="@{/js/cart.js}"></script>
+	
+	<!-- Script hiển thị thông báo lỗi bằng SweetAlert2 -->
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', function() {
+			// Lấy danh sách thông báo lỗi từ server
+			const errorMessages = /*[[${errorMessages}]]*/ null;
+			
+			// Hiển thị danh sách lỗi nếu có
+			if (errorMessages && errorMessages.length > 0) {
+				// Tạo HTML cho danh sách lỗi
+				let errorHtml = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+				errorMessages.forEach(function(error) {
+					errorHtml += '<li>' + error + '</li>';
+				});
+				errorHtml += '</ul>';
+				
+				// Hiển thị SweetAlert2 với danh sách lỗi
+				Swal.fire({
+					title: 'An error has occurred',
+					html: errorHtml,
+					icon: 'error',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#d33'
+				});
+			}
+		});
+	</script>
+	
+	<script type="text/javascript">
+		function toggleDropdown(dropdownFilter) {
+			var dropdown = document.getElementById(dropdownFilter);
+			if (dropdown.style.display === "block") {
+				dropdown.style.display = "none";
+			} else {
+				dropdown.style.display = "block";
+			}
+		}
+// Đóng tất cả dropdowns khi nhấp ra ngoài vùng dropdown
+	window.onclick = function(event) {
+    // Lấy tất cả các dropdown và các button
+    var dropdowns = document.querySelectorAll(".dropdown-content");
+    var buttons = document.querySelectorAll(".dropdown-btn");
+
+    dropdowns.forEach((dropdown, index) => {
+        var button = buttons[index]; // Lấy button tương ứng
+
+        // Kiểm tra nếu click không nằm trong dropdown hoặc button
+        if (dropdown.style.display === "block" &&
+            !dropdown.contains(event.target) &&
+            !button.contains(event.target)) {
+            dropdown.style.display = "none"; // Đóng dropdown
+      	   }
+    	});
+	};
+	
+	// Xử lý các nút "Thử Ngay"
+	document.addEventListener('DOMContentLoaded', function() {
+		const tryOnButtons = document.querySelectorAll('.action-btn.try-on, .try-now-container .btn');
+		
+		tryOnButtons.forEach(button => {
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+				
+				// Lấy thông tin kính từ thẻ cha
+				const productCard = this.closest('.product-card');
+				if (!productCard) return;
+				
+				// Lấy thông tin sản phẩm kính
+				const productId = this.getAttribute('href').split('glassesId=')[1]; // Lấy ID từ URL
+				const productName = productCard.querySelector('.product-name a').innerText;
+				const productPrice = parseFloat(productCard.querySelector('.current-price').innerText.replace(/[^\d]/g, ''));
+				const productImgUrl = productCard.querySelector('.image-container .front-image').getAttribute('src');
+				const productBrand = productCard.querySelector('.product-brand').innerText;
+				
+				// Tạo đối tượng dữ liệu kính
+				const glassData = {
+					id: productId,
+					name: productName,
+					imageUrl: productImgUrl,
+					description: `${productBrand} - Mẫu kính thời trang`,
+					price: productPrice
+				};
+				
+				// Lưu dữ liệu vào localStorage để sử dụng trong trang thử kính
+				localStorage.setItem('glassData', JSON.stringify(glassData));
+				
+				// Chuyển hướng đến trang thử kính
+				window.location.href = this.getAttribute('href', '_blank');
+			});
+		});
+	});
+	</script>
+	<script type="text/javascript" th:inline="javascript">
+		// Ensure cart quantity display persists
+		document.addEventListener('DOMContentLoaded', function() {
+			const cartQuantity = /*[[${cartQuantity}]]*/ 0;
+			const soluongCart = document.querySelector('.soluong_cart');
+			if (soluongCart && cartQuantity && cartQuantity > 0) {
+				soluongCart.textContent = cartQuantity;
+			}
+		});
+	</script>
+	<script type="text/javascript" th:if="${popup}" th:inline="javascript">
+			document.addEventListener('DOMContentLoaded', function() {
+				document.getElementById('loginPopup').style.display = 'block';
+			});
+
+			function closePopup() {
+				document.getElementById("loginPopup").style.display = "none";
+			}
+
+			// Đóng popup khi click bên ngoài
+			window.onclick = function(event) {
+				var popup = document.getElementById("loginPopup");
+				if (event.target == popup) {
+					popup.style.display = "none";
+				}
+			}
+		</script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+/* ---------- NOTIFICATION & ACCOUNT DROPDOWN IMPROVEMENTS ---------- */
+
+/* Header right section */
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+/* Container chung cho các dropdown */
+.notification-container, .user-account {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0px;
+    height: 40px;
+}
+
+/* Style cho các nút dropdown */
+#notification-btn, #account-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+    padding: 0;
+}
+
+#notification-btn .material-icons-outlined, 
+#account-btn .material-icons-outlined {
+    font-size: 28px;
+    line-height: 1;
+}
+
+#notification-btn:hover, #account-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Dot thông báo */
+.notification-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #ff4d4d;
+    border-radius: 50%;
+    border: 2px solid #263043;
+    display: none;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.notification-dot.active {
+    display: block;
+}
+
+/* Style chung cho cả hai popup */
+.notification-popup, .account-popup {
+    position: absolute;
+    right: 0px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: none;
+    padding: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+    z-index: 1000;
+    animation: fadeInDown 0.3s ease;
+    border: 1px solid #444;
+}
+
+/* Ngăn chặn thanh cuộn ngang trong dropdown account */
+.account-popup {
+    overflow-x: hidden;
+    white-space: normal;
+    width: 240px; /* Tăng chiều rộng để đảm bảo nội dung vừa khít */
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mũi tên nhỏ trên dropdown */
+.notification-popup::before, .account-popup::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 18px;
+    width: 14px;
+    height: 14px;
+    background-color: #2a2a2a;
+    transform: rotate(45deg);
+    border-top: 1px solid #444;
+    border-left: 1px solid #444;
+}
+
+/* Vị trí cụ thể cho từng popup */
+.notification-popup {
+    top: 55px;
+    width: 320px;
+}
+
+.account-popup {
+    top: 55px;
+    width: 220px;
+}
+
+/* Style cho tiêu đề trong notification */
+.notification-popup h3 {
+    margin: 0;
+    padding: 0 0 12px 0;
+    border-bottom: 1px solid #444;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Style cho danh sách thông báo */
+.notification-popup ul {
+    list-style-type: none;
+    margin: 8px 0 0 0;
+    padding: 0;
+}
+
+/* Style cho thông báo trống */
+.notification-popup > div:not(ul):not(h3) {
+    color: #999;
+    text-align: center;
+    padding: 20px 0;
+    font-style: italic;
+}
+
+/* Style cho từng item thông báo */
+.notification-item {
+    display: flex;
+    padding: 15px;
+    margin: 8px 0;
+    background-color: #333;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+    transition: all 0.3s ease;
+    transform: translateY(10px);
+    opacity: 0.7;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-item.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.notification-item:hover {
+    background-color: #3a3a3a;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Màu sắc theo loại thông báo */
+.notification-item.notification-order {
+    border-left-color: #2196F3;
+}
+
+.notification-item.notification-user {
+    border-left-color: #9C27B0;
+}
+
+.notification-item.notification-product {
+    border-left-color: #FF9800;
+}
+
+.notification-item.notification-info {
+    border-left-color: #4CAF50;
+}
+
+/* Icon thông báo */
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    margin-right: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.notification-icon .material-icons-outlined {
+    font-size: 20px;
+    color: #fff;
+}
+
+.notification-order .notification-icon {
+    background-color: rgba(33, 150, 243, 0.15);
+}
+
+.notification-order .notification-icon .material-icons-outlined {
+    color: #2196F3;
+}
+
+.notification-user .notification-icon {
+    background-color: rgba(156, 39, 176, 0.15);
+}
+
+.notification-user .notification-icon .material-icons-outlined {
+    color: #9C27B0;
+}
+
+.notification-product .notification-icon {
+    background-color: rgba(255, 152, 0, 0.15);
+}
+
+.notification-product .notification-icon .material-icons-outlined {
+    color: #FF9800;
+}
+
+.notification-info .notification-icon {
+    background-color: rgba(76, 175, 80, 0.15);
+}
+
+.notification-info .notification-icon .material-icons-outlined {
+    color: #4CAF50;
+}
+
+/* Nội dung thông báo */
+.notification-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #eee;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.notification-message {
+    margin: 0 0 10px 0;
+    color: #ddd;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Vùng chứa nút hành động */
+.notification-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Nút đánh dấu đã đọc */
+.mark-as-read-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ddd;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.mark-as-read-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.mark-as-read-btn:active {
+    transform: translateY(0);
+}
+
+/* Hiệu ứng khi đánh dấu đã đọc */
+.notification-item.fade-out {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+/* Style cho menu tài khoản */
+.account-popup a.dropdown-item {
+    display: flex;
+    align-items: center;
+    color: #eee;
+    text-decoration: none;
+    padding: 12px 16px;
+    margin: 4px 0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Đảm bảo biểu tượng và văn bản luôn ở cùng hàng */
+.account-popup a.dropdown-item span.material-icons-outlined {
+    flex-shrink: 0;
+}
+
+.account-popup a.dropdown-item:hover {
+    background-color: #3a3a3a;
+    color: #4caf50;
+    transform: translateX(3px);
+}
+
+.account-popup br {
+    display: none;
+}
+
+/* Tùy chỉnh scrollbar cho dropdown */
+.notification-popup::-webkit-scrollbar, .account-popup::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notification-popup::-webkit-scrollbar-track, .account-popup::-webkit-scrollbar-track {
+    background: #333;
+    border-radius: 4px;
+}
+
+.notification-popup::-webkit-scrollbar-thumb, .account-popup::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.notification-popup::-webkit-scrollbar-thumb:hover, .account-popup::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Tùy chỉnh danh sách */
+#notification-popup ul {
+    margin-top: 10px;
+}
+
+#notification-popup li {
+    border-bottom: none;
+    padding: 0;
+}
+
+#notification-popup li:last-child {
+    margin-bottom: 0;
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+<style>
+.bodyNotification{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+}
+</style>
+</head>
+<body>
+    <div class="bodyNotification">
+        <img th:src="@{/images/banner/restriction.png}" alt="Access Denied">
+        <h1>Access Denied</h1>
+        <p>You do not have permission to access this page.</p>
+    </div>
+    
+</body>
+</html>

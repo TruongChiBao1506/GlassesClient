@@ -1,0 +1,209 @@
+header {
+    top: 0;
+}
+
+.text0 {
+    position: absolute;
+    font-weight: 600;
+    top: 40%;
+    left: 15%;
+}
+
+.bestsl {
+    position: relative;
+    background-color: #e5e3e3;
+    border-bottom: 5px solid #6b2d75;
+}
+
+.cap1 {
+    font-size: 18px;
+    color: rgb(65, 65, 65);
+}
+
+.chitiet1 {
+    margin-top: 30vh;
+    background-color: #ffffff;
+    border-radius: 20px;
+    border: 2px solid #f8f8f8;
+    display: flex;
+    flex-direction: column; /* Đặt các phần tử (carousel và tùy chọn màu) theo chiều dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+
+}
+
+.chitiet2 {
+    margin-top: 30vh;
+    margin-left: 8vh;
+    border-radius: 20px;
+    background-color: rgb(242, 251, 251);
+}
+
+.but1 {
+    margin-left: 0;
+}
+.color-options {
+	display: flex;
+	gap: 10px;
+	margin: 15px 0;
+	align-items: center;
+	justify-content: center;
+    
+}
+
+.color-option {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	border: 2px solid #ddd;
+	cursor: pointer;
+	
+}
+
+.color-option.selected {
+	border-color: #33CCFF;
+	border-width: 4px;
+}
+.review-container {
+    margin: 20px auto;
+    max-width: 700px;
+}
+
+.card {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.card .text-primary {
+    font-size: 20px;
+}
+
+.card .text-warning {
+    color: #ffc107;
+}
+
+.card .text-muted {
+    font-size: 14px;
+}
+
+.card .bi-star-fill {
+    color: #ffc107; /* Vàng cho biểu tượng sao */
+}
+
+/* Review Section Styles */
+.average-rating {
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.average-rating:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.rating-breakdown .progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: #f1f1f1;
+}
+
+.rating-breakdown .progress-bar {
+    border-radius: 10px;
+}
+
+/* Review Form */
+.review-form {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.review-form:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.star-rating .stars {
+    direction: ltr;
+    display: flex;
+}
+
+.star-rating .star {
+    font-size: 28px;
+    padding: 0 5px;
+    cursor: pointer;
+    color: #ddd;
+    transition: all 0.2s ease;
+}
+
+.star-rating .star i {
+    transition: all 0.2s ease;
+}
+
+.star-rating .star:hover,
+.star-rating .star:hover ~ .star,
+.star-rating .star.selected,
+.star-rating .star.selected ~ .star {
+    color: #ffc107;
+}
+
+.star-rating .star:hover i,
+.star-rating .star:hover ~ .star i,
+.star-rating .star.selected i,
+.star-rating .star.selected ~ .star i {
+    transform: scale(1.2);
+}
+
+.rating-text {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Review Cards */
+.review-container .card {
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+}
+
+.review-container .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.review-container:hover .user-avatar {
+    transform: scale(1.1);
+}
+
+/* Show More Button */
+#show-more-reviews {
+    font-weight: 500;
+    padding: 10px 25px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+#show-more-reviews:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+#show-more-reviews i {
+    transition: all 0.3s ease;
+}
+
+#show-more-reviews:hover i {
+    transform: rotate(90deg);
+}

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up</title>
+<link rel="stylesheet" th:href="@{css/bootstrap.min.css}">
+
+<!-- FONT GOOGLE -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap"
+	rel="stylesheet">
+
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+	integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+	crossorigin="anonymous" />
+
+<!-- OWL CAROUSEL -->
+<link rel="stylesheet" th:href="@{css/owl.carousel.min.css}">
+<link rel="stylesheet" th:href="@{css/owl.theme.default.min.css}">
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" th:href="@{css/index.css}">
+<link rel="stylesheet" th:href="@{css/dangky.css}">
+<link rel="stylesheet" th:href="@{css/sweetalert2.min.css}">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+span {
+	color: red;
+}
+</style>
+
+</head>
+
+<body>
+	<!-- HEADER -->
+		<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}" method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name = "keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2" style="padding: 0px"> 
+								<button class = "btn" type = "submit"><i class="fa fa-search"></i></button>
+								
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"
+							th:text="${cartQuantity > 0 ? cartQuantity : ''}"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông tin cá
+										nhân</a> <a class="dropdown-item" th:href="@{/changePassword}">Đổi
+										mật khẩu</a>
+										<a class="dropdown-item" th:href="@{/orderHistory}">Lịch sử mua hàng</a>
+										 <a class="dropdown-item" th:href="@{/logout}">Đăng
+										xuất</a>
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's Eyeglasses</a> <a
+								class="dropdown-item" th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's Sunglasses</a> <a
+								class="dropdown-item" th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/about}">About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div class="body_frm">
+		<div class="container">
+			<div class="btn-group">
+				<a th:href="@{/home}"><i class="fas fa-home text-dark"></i></a> <i
+					class="fas fa-angle-double-right mr-2 ml-2 mt-1"></i> <a
+					th:href="@{dangky}" class="dangky text-dark text-decoration-none">Đăng
+					ký</a>
+			</div>
+			<div class="container1">
+				<section class="col-lg-10 pb-4 pt-4 rounded">
+					<div th:if="${errors}" th:each="error : ${errors}"
+						class="alert alert-danger alert-dismissible fade show d-none"
+						role="alert">
+						<i class="fas fa-exclamation-circle me-2"></i> <span
+							th:text="${error.getValue()}"></span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert"
+							aria-label="Close"></button>
+					</div>
+					<div th:if="${error}"
+						class="alert alert-danger alert-dismissible fade show d-none"
+						role="alert">
+						<i class="fas fa-exclamation-circle me-2"></i> <span
+							th:text="${error}"></span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert"
+							aria-label="Close"></button>
+					</div>
+					<div th:if="${success}"
+						class="alert alert-success alert-dismissible fade show d-none"
+						role="alert">
+						<i class="fas fa-check-circle me-2"></i> <span
+							th:text="${success}"></span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert"
+							aria-label="Close"></button>
+					</div>
+					<form th:action="@{/register}" method="post" id = "formRegister">
+						<div class="row">
+							<div class="col-lg-6 pl-3 pr-4">
+								<div class="form-group">
+									<label for="Fullname">Họ tên*</label>
+									<input type="text" class="form-control form-control-sm" placeholder="Nhập họ tên"
+										id="txtFullname" name = "fullname">
+									<span id="tbFullname"></span>
+								</div>
+								<div class="form-group">
+									<label for="account">Tài khoản</label> <input type="text"
+										name="username" class="form-control form-control-sm"
+										placeholder="nhập tên tài khoản để đăng nhập" id="txtAcc">
+									<span id="tbAcc"></span>
+								</div>
+
+								<div class="form-group">
+									<label for="pwd">Mật khẩu</label>
+									<div class="input-group">
+										<input type="password" class="form-control form-control-sm"
+											placeholder="Mật khẩu" id="txtPwd" name="password">
+										<div class="input-group-append">
+											<button type="button" class="btn btn-light btn-sm"
+												id="btn_eye">
+												<span class="eyeO1 fas fa-eye text-dark"
+													style="display: inline-block;"></span> <span
+													class='eyeC1 fas fa-eye-slash text-dark'
+													style="display: none;"></span>
+											</button>
+										</div>
+									</div>
+									<span id="tbPwd"></span>
+								</div>
+								<div class="form-group">
+									<label for="pwd">Nhập lại mật khẩu</label>
+									<div class="input-group">
+										<input type="password" class="form-control form-control-sm"
+											placeholder="Nhập lại mật khẩu" id="txtPwd2" name="rePassword">
+										<div class="input-group-append">
+											<button type="button" class="btn btn-light btn-sm"
+												id="btn_eye_2">
+												<span class="eyeO2 fas fa-eye text-dark"
+													style="display: inline-block;"></span> <span
+													class='eyeC2 fas fa-eye-slash text-dark'
+													style="display: none;"></span>
+											</button>
+										</div>
+									</div>
+									<span id="tbPwd2"></span>
+								</div>
+
+								<div class="form-group">
+									<label for="Email">Email</label> <input type="text" name="email"
+										class="form-control form-control-sm"
+										placeholder="Nhập địa chỉ Email" id="txtEmail"> <span
+										id="tbEmail"></span>
+								</div>
+
+
+
+							</div>
+							<div class="col-lg-6 pl-3 pr-4">
+								<div class="form-group">
+									<label for="birthday">Ngày sinh</label> <input type="date"
+										class="form-control form-control-sm" id="txtDate" name="dob">
+									<span id="tbDate"></span>
+								</div>
+								<div class="form-group">
+									<label for="phone">Điện thoại</label> <input type="text"
+									name="phone" class="form-control form-control-sm"
+									placeholder="Nhập số điện thoại" id="txtPhone"> <span
+									id="tbPhone"></span>
+								</div>
+								<div class="form-group">
+									<label for="address">Địa chỉ</label> <input type="text"
+									name="address" class="form-control form-control-sm"
+									placeholder="Nhập địa chỉ" id="txtAddress"> <span
+									id="tbAddress"></span>
+								</div>
+								<div class="form-group form-row mt-4 mb-0 pl-1">
+									<label for="">Giới tính:</label>
+									<div class="radio ml-2 mr-2">
+										<label for="male"> <input type="radio" name="gender"
+											value="true" id="male"> Nam
+										</label>
+									</div>
+									<div class="radio ml-2 mr-2">
+										<label for="female"> <input type="radio" name="gender"
+											value="false" id="female"> Nữ
+										</label>
+									</div>
+								</div>
+							<div>
+								<p class="mb-1">
+									Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a> tại đây
+								</p>
+								<p>Đăng nhập bằng:</p>
+								<div class="link row">
+									<div class="link-fb col-6 pl-3 pr-3">
+										<a href="#">
+											<button class="btn-facebook">
+												<div class="mb-0 d-flex">
+													<i class="fab fa-facebook-f fa-2x"></i>
+													<p class="mb-0">Facebook</p>
+												</div>
+											</button>
+										</a>
+									</div>
+									<div class="link-google col-6 pl-3 pr-3">
+										<a href="#">
+											<button class="btn-google">
+												<div class="mb-0 d-flex">
+													<i class="fab fa-google-plus-g fa-2x" aria-hidden="true"></i>
+													<p class="mb-0">Google</p>
+												</div>
+											</button>
+										</a>
+									</div>
+								</div>
+							</div>
+							<button type="submit" value="Đăng ký"
+								class="btn col-12 mt-4" style="background-color: #007bff; color: #ffffff;" id="btndangky" disabled>Đăng ký</button>
+						</div>
+					</div>
+				</form>
+			</section>
+			</div>
+		</div>
+	</div>
+	<!-- MODAL_THONGBAO -->
+	<div class="modal fade" role="dialog" id="frmTB">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Thông Báo</h3>
+				</div>
+				<div class="modal-body">
+					<h4>Đăng ký Thành Công</h4>
+					<input type="button" value="Xác nhận" class="btn btn-success"
+						data-dismiss="modal">
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- FOOTER -->
+	<footer>
+		<div class="footer__top section">
+			<div class="container">
+				<div class="footer__grid row">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>About Us</h3>
+						<p>We are an eyewear store that offers a wide selection of
+							fashionable and functional glasses from top brands. Our friendly
+							staff are always ready to assist you in finding the perfect pair
+							of glasses to match your style and budget. Come visit us and see
+							the world in a new light!</p>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Latest News</h3>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Services</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Glasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Sunglasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Accessories</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Products</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Gift
+								Card</a>
+						</div>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Contact Info</h3>
+						<div class="footer__contact">
+							<i class="fa fa-map-marker-alt"></i> <a href="#">112 Cao
+								Thắng, Quận 3 – HCM</a>
+						</div>
+						<div class="footer__contact">
+							<i class="far fa-envelope"></i> <a
+								href="mailto:ndat04913@gmail.com">ndat04913@gmail.com</a>
+						</div>
+						<div class="footer__contact">
+							<i class="fas fa-phone-alt"></i> <a href="tel:0966894644">096.689.4644</a>
+						</div>
+					</div>
+				</div>
+				<div class="footer__form">
+					<form>
+						<div class="form-group form-row">
+							<label
+								class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 col-form-label"
+								for="emailFooter">Sign up for our Newsletter</label>
+							<div class="col-8 col-sm-8 col-md-8 col-lg-6 col-xl-6">
+								<input type="email" class="form-control" id="emailFooter"
+									placeholder="Enter Email Address ...">
+							</div>
+							<div
+								class="col-4 col-sm-4 col-md-4 col-lg-2 col-xl-2 text-center">
+								<button type="submit" class="btn">SUBMIT</button>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="footer__bottom">
+			<div>
+				&copy; 2024 Instruction. All rights reserved | Design by <a href="#">Nhóm 10</a>
+			</div>
+		</div>
+
+	</footer>
+	<!-- Thu vien ho tro -->
+
+	<script src="./js/jquery.min.js"></script>
+
+	<script src="./js/bootstrap.bundle.min.js"></script>
+
+	<script src="./js/sweetalert2.all.min.js"></script>
+
+	<!-- OWL JS -->
+	<script src="./js/owl.carousel.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+	<script src="./js/cart.js"></script>
+	<script th:src="@{/js/dangky.js}"></script>
+	
+	<!-- Xử lý đóng thông báo alert -->
+	<script>
+		// Xử lý nút đóng alert
+		document.addEventListener('DOMContentLoaded', function() {
+			// Tìm tất cả các nút đóng alert
+			var closeButtons = document.querySelectorAll('.btn-close');
+			
+			// Thêm sự kiện click cho mỗi nút đóng
+			closeButtons.forEach(function(button) {
+				button.addEventListener('click', function() {
+					// Tìm phần tử alert gần nhất và ẩn nó đi
+					var alert = this.closest('.alert');
+					if (alert) {
+						alert.style.display = 'none';
+					}
+				});
+			});
+			
+			// Tự động ẩn thông báo sau 5 giây
+			setTimeout(function() {
+				var alerts = document.querySelectorAll('.alert');
+				alerts.forEach(function(alert) {
+					alert.style.display = 'none';
+				});
+			}, 5000);
+		});
+	</script>
+	
+	<!-- Thêm đoạn script để xử lý SweetAlert2 -->
+	<script type="text/javascript" th:inline="javascript">
+		// Xử lý hiển thị SweetAlert2 cho các thông báo
+		document.addEventListener('DOMContentLoaded', function() {
+			// Lấy thông báo từ server
+			const errors = /*[[${errors}]]*/ null;
+			const error = /*[[${error}]]*/ null;
+			const success = /*[[${success}]]*/ null;
+			
+			// Hiển thị thông báo lỗi từ danh sách errors
+			if (errors) {
+				const errorMessages = [];
+				// Chuyển đổi Map của errors thành danh sách thông báo
+				for (const key in errors) {
+					if (errors.hasOwnProperty(key)) {
+						errorMessages.push(errors[key]);
+					}
+				}
+				
+				if (errorMessages.length > 0) {
+					Swal.fire({
+						title: 'Error',
+						html: errorMessages.join('<br>'),
+						icon: 'error',
+						confirmButtonText: 'Close',
+						confirmButtonColor: '#d33'
+					});
+				}
+			}
+			
+			// Hiển thị thông báo lỗi đơn lẻ
+			if (error) {
+				Swal.fire({
+					title: 'Error',
+					text: error,
+					icon: 'error',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#d33'
+				});
+			}
+			
+			// Hiển thị thông báo thành công
+			if (success) {
+				Swal.fire({
+					title: 'Success',
+					text: success,
+					icon: 'success',
+					confirmButtonText: 'Close',
+					confirmButtonColor: '#28a745'
+				});
+			}
+		});
+	</script>
+</body>
+
+</html>

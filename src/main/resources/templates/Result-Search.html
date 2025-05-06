@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Kết quả tìm kiếm</title>
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+<!-- FONT GOOGLE -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap"
+	rel="stylesheet">
+
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+
+<!-- OWL CAROUSEL -->
+<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+<link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" th:href="@{/css/index.css}">
+<link rel="stylesheet" th:href="@{/css/kinhnam.css}">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" th:href="@{/css/sweetalert2.min.css}">
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+	<!-- HEADER -->
+	<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"
+							th:text="${cartQuantity > 0 ? cartQuantity : ''}"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông
+										tin cá nhân</a> <a class="dropdown-item"
+										th:href="@{/changePassword}">Đổi mật khẩu</a>
+										<a class="dropdown-item" th:href="@{/orderHistory}">Lịch sử mua hàng</a>
+										 <a
+										class="dropdown-item" th:href="@{/logout}">Đăng xuất</a>
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
+								Eyeglasses</a> <a class="dropdown-item"
+								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
+								Sunglasses</a> <a class="dropdown-item"
+								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/about}">About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div id="loginPopup" class="popup" th:if="${popup}">
+		<div class="popup-content">
+			<span class="close" onclick="closePopup()">&times;</span>
+			<div class="popup-body">
+				<h4>Chú ý</h4>
+				<p>Bạn phải đăng nhập trước khi vào giỏ hàng để thanh toán</p>
+				<div class="popup-buttons">
+					<a th:href="@{/login}" class="login-btn">Đăng nhập</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		style="padding-top: 250px; max-width: 1000px; margin: 0 auto; text-align: center; margin-bottom: 60px">
+		<h2>Kết quả tìm kiếm</h2>
+		<h5 th:text="'Tìm kiếm theo: '+ ${keyword}"></h5>
+	</div>
+	<div>
+		<section class="section1">
+			<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 row"
+				style="margin-left: 0px; margin-right: 10px">
+				<h6 th:if="${#lists.isEmpty(glasses)}"
+					style="margin: 0 auto; color: #676f78">Chưa có sản phẩm nào.</h6>
+				<div class="col-md-3 mb-4" th:if="${glasses}" th:each="glass: ${glasses}">
+					<div class="product-card">
+						<!-- Phần hình ảnh với hiệu ứng chuyển đổi -->
+						<div class="product-image-wrapper">
+							<a th:href="@{/products/glasses/{id}(id=${glass.id})}">
+								<div class="image-container">
+									<img th:src="@{${glass.imageFrontUrl}}" alt="Front view" class="front-image">
+									<img th:src="@{${glass.imageSideUrl}}" alt="Side view" class="side-image">
+								</div>
+							</a>
+							
+							<!-- Nút tương tác sản phẩm -->
+							<div class="product-actions">
+								<a th:href="@{/products/glasses/{id}(id=${glass.id})}" class="action-btn quick-view" title="Xem chi tiết">
+									<i class="fas fa-eye"></i>
+								</a>
+							</div>
+						</div>
+						
+						<!-- Thông tin sản phẩm -->
+						<div class="product-info">
+							<div class="product-brand" th:text="${glass.brand}">Ray-Ban</div>
+							<h3 class="product-name">
+								<a th:href="@{/products/glasses/{id}(id=${glass.id})}" th:text="${glass.name}">Classic Wayfarer</a>
+							</h3>
+							
+							<!-- Màu sắc sản phẩm -->
+							<div class="color-display">
+								<span class="color-dot" th:style="'background-color: ' + ${glass.colorCode}" th:title="${glass.colorCode}"></span>
+							</div>
+							
+							<!-- Hiển thị giá -->
+							<div class="price-container">
+								<span class="current-price" th:text="${'$' + glass.price}">$350.00</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+	<script th:src="@{/js/jquery.min.js}"></script>
+	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/js/cart.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		// Ensure cart quantity display persists
+		document.addEventListener('DOMContentLoaded', function() {
+			const cartQuantity = /*[[${cartQuantity}]]*/ 0;
+			const soluongCart = document.querySelector('.soluong_cart');
+			if (soluongCart && cartQuantity && cartQuantity > 0) {
+				soluongCart.textContent = cartQuantity;
+				}
+			
+			// Kiểm tra và hiển thị thông báo lỗi nếu có
+			const errorMessages = /*[[${errorMessages}]]*/ null;
+			if (errorMessages && errorMessages.length > 0) {
+				// Tạo HTML cho danh sách lỗi
+				let errorHtml = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+				errorMessages.forEach(function(error) {
+					errorHtml += '<li>' + error + '</li>';
+				});
+				errorHtml += '</ul>';
+				
+				// Hiển thị SweetAlert2 với danh sách lỗi
+				Swal.fire({
+					title: 'Đã xảy ra lỗi',
+					html: errorHtml,
+					icon: 'error',
+					confirmButtonText: 'Đóng',
+					confirmButtonColor: '#d33'
+				});
+			}
+		});
+	</script>
+</body>
+</html>

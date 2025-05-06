@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Verify OTP</title>
+<link rel="stylesheet" th:href="@{css/bootstrap.min.css}">
+
+<!-- FONT GOOGLE -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap"
+	rel="stylesheet">
+
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+	integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+	crossorigin="anonymous" />
+
+<!-- OWL CAROUSEL -->
+<link rel="stylesheet" th:href="@{css/owl.carousel.min.css}">
+<link rel="stylesheet" th:href="@{css/owl.theme.default.min.css}">
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" th:href="@{css/index.css}">
+<link rel="stylesheet" th:href="@{css/dangky.css}">
+<link rel="stylesheet" th:href="@{css/sweetalert2.min.css}">
+<link rel="stylesheet" th:href="@{css/dangnhap.css}">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+.otp-container {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 20px;
+	gap: 8px; /* Smaller gap between inputs */
+}
+
+.otp-input-single {
+	width: 45px;
+	height: 45px;
+	font-size: 24px;
+	text-align: center;
+	margin: 0;
+	border: 1px solid #ced4da;
+	border-radius: 5px;
+}
+
+.otp-input-single:focus {
+	border-color: #007bff;
+	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+	outline: none;
+}
+
+.resend-link {
+	color: #007bff;
+	cursor: pointer;
+	text-decoration: underline;
+	font-size: 14px;
+}
+
+.timer {
+	font-size: 14px;
+	color: #6c757d;
+}
+
+/* CSS mới cho trường input OTP */
+.otp-input {
+	width: 100%;
+	height: 50px;
+	font-size: 22px;
+	text-align: center;
+	letter-spacing: 8px;
+	font-weight: 600;
+	border: 2px solid #ced4da;
+	border-radius: 8px;
+	margin-bottom: 16px;
+	padding: 10px;
+	color: #333;
+	transition: all 0.3s ease;
+	-moz-appearance: textfield; /* Loại bỏ spinner trên Firefox */
+}
+
+.otp-input:focus {
+	border-color: #007bff;
+	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+	outline: none;
+}
+
+/* Ẩn mũi tên tăng/giảm cho trường input số */
+.otp-input::-webkit-inner-spin-button,
+.otp-input::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.otp-wrapper {
+	position: relative;
+	margin-bottom: 30px;
+}
+
+.otp-label {
+	font-size: 14px;
+	color: #6c757d;
+	margin-bottom: 8px;
+	display: block;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"
+							th:text="${cartQuantity > 0 ? cartQuantity : ''}"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông
+										tin cá nhân</a> <a class="dropdown-item"
+										th:href="@{/changePassword}">Đổi mật khẩu</a> <a
+										class="dropdown-item" th:href="@{/orderHistory}">Lịch sử
+										mua hàng</a> <a class="dropdown-item" th:href="@{/logout}">Đăng
+										xuất</a>
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
+								Eyeglasses</a> <a class="dropdown-item"
+								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
+								Sunglasses</a> <a class="dropdown-item"
+								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/about}">About</a></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div class="container1">
+		<form th:action="@{/verify-otp}" method="post" class="form1"
+			style="position: relative;">
+			<h3 class="">Verify OTP Code</h3>
+			
+			<!-- Thông báo lỗi -->
+			<div th:if="${error != null}" class="alert alert-danger">
+				<p th:text="${error}" style="color: #721c24;"></p>
+			</div>
+			
+			<!-- Thông báo thành công -->
+			<div th:if="${success != null}" class="alert alert-success">
+				<p th:text="${success}" style="color: #155724;"></p>
+			</div>
+			
+			<!-- Thông báo thông tin -->
+			<div th:if="${message != null}" class="alert alert-primary">
+				<p th:text="${message}" style="color: #004085;"></p>
+			</div>
+			
+			<p class="text-center mb-4">We've sent a verification code to
+				your email address. Please enter the code below.</p>
+
+			<!-- Hidden email field -->
+			<input type="hidden" name="email" th:value="${email}"
+				id="hiddenEmail"> 
+			<div class="otp-wrapper">
+				<label for="otp" class="otp-label">Enter the 6-digit verification code</label>
+				<input type="number" name="otp" class="otp-input" placeholder="······" maxlength="6" autocomplete="one-time-code">
+				<div class="d-flex justify-content-between mt-2">
+					<div class="timer">
+						Code expires in: <span id="countdown">05:00</span>
+					</div>
+					<a class="resend-link" id="resendLink" style="display: none;">Resend
+						code</a>
+				</div>
+			</div>
+			<div class="text-center">
+				<button type="submit" class="btn-signin">Verify</button>
+			</div>
+		</form>
+	</div>
+
+	<!-- Add JavaScript for countdown timer -->
+	<script>
+        // Function to start countdown timer
+        function startTimer(duration, display) {
+            var timer = duration, minutes, seconds;
+            var countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(countdown);
+                    document.getElementById("resendLink").style.display = "block";
+                    display.textContent = "00:00";
+                }
+            }, 1000);
+        }
+
+        // Start the countdown when page loads
+       window.onload = function () {
+    var fiveMinutes = 60 * 5,
+    display = document.querySelector('#countdown');
+    startTimer(fiveMinutes, display);
+    
+    // Handle resend action
+    document.getElementById("resendLink").addEventListener("click", function() {
+        var email = document.getElementById("hiddenEmail").value;
+        fetch('/resend-otp?email=' + encodeURIComponent(email), {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                document.getElementById("resendLink").style.display = "none";
+                startTimer(fiveMinutes, display);
+            }
+        });
+    });
+
+    // Xóa form submission handler cũ vì không còn cần thiết
+    // OTP được nhập vào trường input trực tiếp với name="otp"
+    
+    // Xóa code xử lý otp-input-single vì chúng ta dùng trường nhập đơn
+};
+
+// Outside window.onload
+setTimeout(function() {
+    var alertBox = document.querySelector('.alert');
+    if (alertBox) {
+        console.log("Alert box found:", alertBox.textContent);
+        setTimeout(() => {
+            alertBox.remove();
+        }, 3000);
+    } else {
+        console.log("No alert box found");
+    }
+}, 500);
+    </script>
+</body>
+</html>

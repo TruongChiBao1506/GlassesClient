@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Order Histoty</title>
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+<!-- FONT GOOGLE -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap"
+	rel="stylesheet">
+
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+
+<!-- OWL CAROUSEL -->
+<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+<link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" th:href="@{/css/index.css}">
+<style type="text/css">
+.order-card {
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 15px;
+	margin-bottom: 10px;
+	background-color: #f9f9f9;
+}
+
+.order-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.order-header h3 {
+	margin: 0;
+}
+
+.order-details {
+	margin-top: 10px;
+	padding: 10px;
+	border-top: 1px solid #ddd;
+	display: none; /* Ẩn chi tiết ban đầu */
+}
+
+.details-button {
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 5px 10px;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+.details-button:hover {
+	background-color: #0056b3;
+}
+
+.product-item {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 10px;
+}
+
+.product-image {
+	width: 80px;
+	height: 80px;
+	object-fit: cover;
+	margin-right: 15px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+}
+
+.color-box {
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	margin-right: 5px;
+	border: 1px solid #ddd;
+}
+
+.product-info {
+	display: flex;
+	flex-direction: column;
+}
+
+.price-info {
+	text-align: center;
+}
+
+.price-info p {
+	margin: 20px 55px;
+}
+
+.status-pending {
+	color: white;
+	background-color: orange;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+.status-processing {
+	color: white;
+	background-color: blue;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+.status-shipped {
+	color: white;
+	background-color: green;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+.status-completed {
+	color: white;
+	background-color: darkgreen;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+.status-cancelled {
+	color: white;
+	background-color: red;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+.status-paid {
+	color: white;
+	background-color: #28a745;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+.status-failed {
+	color: white;
+	background-color: #dc3545;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+</style>
+</head>
+<body>
+	<!-- HEADER -->
+	<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"
+							th:text="${cartQuantity > 0 ? cartQuantity : ''}"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông
+										tin cá nhân</a> <a class="dropdown-item"
+										th:href="@{/changePassword}">Đổi mật khẩu</a> <a
+										class="dropdown-item" th:href="@{/orderHistory}">Lịch sử
+										mua hàng</a> <a class="dropdown-item" th:href="@{/logout}">Đăng
+										xuất</a>
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
+								Eyeglasses</a> <a class="dropdown-item"
+								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
+								Sunglasses</a> <a class="dropdown-item"
+								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/about}">About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/products/TryOn}">Try on virtually</a></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div
+		style="padding-top: 200px; padding-bottom: 60px; background: #f5f7fa; min-height: 80vh;">
+		<div class="container"
+			style="max-width: 900px; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07); padding: 32px 28px;">
+			<h1
+				style="font-family: 'Work Sans', sans-serif; font-weight: 700; color: #2d3a4a; font-size: 2.4rem; margin-bottom: 20px; letter-spacing: 1px; text-align: center;">Order
+				History</h1>
+
+			<!-- Nếu không có đơn hàng -->
+			<div th:if="${orders.isEmpty()}"
+				style="text-align: center; margin: 40px 0;">
+				<i class="fas fa-shopping-cart"></i>
+				<p style="font-size: 1.2rem; color: #888;">You have no orders
+					yet.</p>
+			</div>
+
+			<!-- Nếu có đơn hàng -->
+			<div th:if="${!orders.isEmpty()}">
+				<div th:each="order : ${orders}" class="order-card mb-4"
+					style="box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); border-radius: 12px; border: none;">
+					<div class="order-header"
+						style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+						<div style="flex: 1 1 300px;">
+							<div style="font-size: 1.1rem; color: #888; margin-bottom: 2px;">Order
+								ID</div>
+							<div
+								style="font-size: 1.3rem; font-weight: 600; color: #2d3a4a; letter-spacing: 1px;"
+								th:text="'#' + ${order.orderNumber}"></div>
+						</div>
+						<div style="flex: 1 1 180px; text-align: right;">
+							<div style="font-size: 1.1rem; color: #888;">Date</div>
+							<div style="font-size: 1.1rem; color: #2d3a4a; font-weight: 500;"
+								th:text="${utils.formatDate(order.orderDate, 'dd/MM/yyyy HH:mm')}">
+							</div>
+						</div>
+						<div style="flex: 1 1 150px; text-align: right;">
+							<div style="font-size: 1.1rem; color: #888;">Total</div>
+							<div style="font-size: 1.1rem; color: #2d3a4a; font-weight: 500;"
+								th:text="${T(iuh.fit.se.utils.Utils).formatPrice(order.totalAmount)}"></div>
+						</div>
+						<div style="flex: 1 1 140px; text-align: right;">
+							<span th:class="'status-' + ${order.status.toLowerCase()}"
+								th:text="${order.status}"
+								style="font-size: 1rem; padding: 7px 18px; border-radius: 8px;"></span>
+						</div>
+						<div style="flex: 1 1 120px; text-align: right;">
+							<button class="details-button"
+								th:attr="data-order-id=${order.id}"
+								onclick="toggleDetails(this)"
+								style="margin-top: 10px; background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%); border-radius: 8px; font-weight: 600; font-size: 1rem;">View
+								Details</button>
+						</div>
+					</div>
+					<div class="order-details" th:attr="data-order-id=${order.id}"
+						style="margin-top: 28px; padding: 20px 14px 10px 14px; background: #f8fafc; border-radius: 10px; border: 1px solid #e7eaf1;">
+						<h4
+							style="font-size: 1.2rem; color: #2d3a4a; font-weight: 700; margin-bottom: 18px;">Order
+							Items</h4>
+						<div th:each="item : ${order.orderItems}" class="product-item"
+							style="display: flex; align-items: flex-start; margin-bottom: 22px; border-bottom: 1px solid #eee; padding-bottom: 18px;">
+							<!-- Hình ảnh sản phẩm -->
+							<img
+								th:src="@{${item.product.image_side_url}}"
+								alt="Product Image" class="product-image"
+								style="width: 76px; height: 76px; border-radius: 8px; background: #fff; border: 1px solid #e7eaf1; margin-right: 18px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+							<!-- Thông tin sản phẩm -->
+							<div class="product-info" style="flex: 1 1 350px;">
+								<div
+									style="font-size: 1.1rem; font-weight: 600; color: #374151; margin-bottom: 2px;"
+									th:text="${item.product.name}"></div>
+								<div style="margin-bottom: 4px;">
+									<span class="color-box"
+										th:style="'background-color:' + ${item.product.color_code}"
+										style="width: 18px; height: 18px; border-radius: 4px; display: inline-block; border: 1px solid #bbb; margin-right: 7px;"></span>
+									<span style="font-size: 1rem; color: #6b7280;"
+										th:text="${item.product.color_name}"></span>
+								</div>
+								<div style="font-size: 1rem; color: #888;">
+									Quantity: <span th:text="${item.quantity}"
+										style="color: #2d3a4a; font-weight: 600;"></span>
+								</div>
+							</div>
+							<!-- Giá sản phẩm -->
+							<div class="price-info"
+								style="min-width: 160px; text-align: right;">
+								<div style="font-size: 1rem; color: #888;">
+									Unit Price: <span
+										th:text="${T(iuh.fit.se.utils.Utils).formatPrice(item.unitPrice)}"
+										style="color: #007bff; font-weight: 600;"></span>
+								</div>
+								<div style="font-size: 1rem; color: #888; margin-top: 6px;">
+									Total Price: <span
+										th:text="${T(iuh.fit.se.utils.Utils).formatPrice(item.totalPrice)}"
+										style="color: #00b894; font-weight: 600;"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- FOOTER -->
+	<footer>
+		<div class="footer__top section">
+			<div class="container">
+				<div class="footer__grid row">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>About Us</h3>
+						<p>We are an eyewear store that offers a wide selection of
+							fashionable and functional glasses from top brands. Our friendly
+							staff are always ready to assist you in finding the perfect pair
+							of glasses to match your style and budget. Come visit us and see
+							the world in a new light!</p>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Latest News</h3>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Services</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Glasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Sunglasses</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Accessories</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Products</a>
+						</div>
+						<div class="footer__link">
+							<i class="fa fa-long-arrow-alt-right"></i> <a href="#">Gift
+								Card</a>
+						</div>
+					</div>
+					<div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<h3>Contact Info</h3>
+						<div class="footer__contact">
+							<i class="fa fa-map-marker-alt"></i> <a href="#">112 Cao
+								Thắng, Quận 3 – HCM</a>
+						</div>
+						<div class="footer__contact">
+							<i class="far fa-envelope"></i> <a
+								href="mailto:ndat04913@gmail.com">ndat04913@gmail.com</a>
+						</div>
+						<div class="footer__contact">
+							<i class="fas fa-phone-alt"></i> <a href="tel:0966894644">096.689.4644</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="footer__form">
+					<form>
+						<div class="form-group form-row">
+							<label
+								class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 col-form-label"
+								for="emailFooter">Sign up for our Newsletter</label>
+							<div class="col-8 col-sm-8 col-md-8 col-lg-6 col-xl-6">
+								<input type="email" class="form-control" id="emailFooter"
+									placeholder="Enter Email Address ...">
+							</div>
+							<div
+								class="col-4 col-sm-4 col-md-4 col-lg-2 col-xl-2 text-center">
+								<button type="submit" class="btn">SUBMIT</button>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="footer__bottom">
+			<div>
+				&copy; 2024 Instruction. All rights reserved | Design by <a href="#">Nhóm
+					10</a>
+			</div>
+		</div>
+	</footer>
+	<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/bootstrap.bundle.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/cart.js}"></script>
+	<script type="text/javascript" th:if="${popup}" th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', function() {
+			document.getElementById('loginPopup').style.display = 'block';
+		});
+
+		function closePopup() {
+			document.getElementById("loginPopup").style.display = "none";
+		}
+
+		// Đóng popup khi click bên ngoài
+		window.onclick = function(event) {
+			var popup = document.getElementById("loginPopup");
+			if (event.target == popup) {
+				popup.style.display = "none";
+			}
+		}
+	</script>
+	<script>
+		function toggleDetails(button) {
+			const orderId = button.getAttribute('data-order-id');
+			const detailsDiv = document
+					.querySelector(`.order-details[data-order-id="${orderId}"]`);
+
+			// Toggle display
+			if (detailsDiv.style.display === "none"
+					|| !detailsDiv.style.display) {
+				detailsDiv.style.display = "block";
+				button.textContent = "Hide Details";
+			} else {
+				detailsDiv.style.display = "none";
+				button.textContent = "View Details";
+			}
+		}
+	</script>
+</body>
+</html>

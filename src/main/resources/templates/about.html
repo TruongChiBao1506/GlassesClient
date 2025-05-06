@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>About</title>
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+<!-- FONT GOOGLE -->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;700&display=swap"
+	rel="stylesheet">
+
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+
+<!-- OWL CAROUSEL -->
+<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+<link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" th:href="@{/css/index.css}">
+<style>
+        body {
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Header Section */
+        .about-header {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .about-header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #222;
+        }
+        .about-header p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+        .divider {
+            width: 80px;
+            height: 4px;
+            background-color: #007bff;
+            margin: 15px auto;
+        }
+
+        /* Story Section */
+        .about-story {
+            padding: 40px 20px;
+            background-color: #fff;
+            text-align: center;
+        }
+        .about-story h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .about-story p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* Team Section */
+        .team-section {
+            background-color: #f9f9f9;
+            padding: 60px 20px;
+        }
+        .team-section h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .team-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .team-card:hover {
+            transform: translateY(-10px);
+        }
+        .team-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        .team-card h5 {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .team-card p {
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+	<!-- HEADER -->
+	<header>
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"
+							th:text="${cartQuantity > 0 ? cartQuantity : ''}"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+
+								<div class="dropdown-menu" style="left: -100px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}">Xem thông
+										tin cá nhân</a> <a class="dropdown-item"
+										th:href="@{/changePassword}">Đổi mật khẩu</a>
+										<a class="dropdown-item" th:href="@{/orderHistory}">Lịch sử mua hàng</a>
+										 <a
+										class="dropdown-item" th:href="@{/logout}">Đăng xuất</a>
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
+								Eyeglasses</a> <a class="dropdown-item"
+								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#"
+						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
+						<div class="dropdown-menu"
+							aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
+								Sunglasses</a> <a class="dropdown-item"
+								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/about}">About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual assistant</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div id="loginPopup" class="popup" th:if="${popup}">
+		<div class="popup-content">
+			<span class="close" onclick="closePopup()">&times;</span>
+			<div class="popup-body">
+				<h4>Chú ý</h4>
+				<p>Bạn phải đăng nhập trước khi vào giỏ hàng để thanh toán</p>
+				<div class="popup-buttons">
+					<a th:href="@{/login}" class="login-btn">Đăng nhập</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- About Header -->
+    <section class="about-header" style="padding-top: 250px">
+        <h1>About Visionary Optics</h1>
+        <p>Your trusted partner in eyewear solutions</p>
+        <div class="divider"></div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="about-story">
+        <h2>Our Story</h2>
+        <p>
+            At <strong>Visionary Optics</strong>, our story begins with a shared dream: to transform the way people see the world—literally and figuratively.
+            Founded by a passionate team of five individuals with a deep love for fashion, technology, and human connection,
+            we set out to make eyewear more than just a necessity. For us, glasses are a statement of individuality, a tool of empowerment, and a companion in life’s journey.
+        </p>
+        <p>
+            Our mission was simple yet ambitious: to make premium-quality eyewear accessible to everyone, blending
+            <strong>style</strong>, <strong>comfort</strong>, and <strong>affordability</strong>. We wanted to eliminate the barriers of cost, lack of choice, and outdated designs,
+            ensuring everyone finds the perfect pair of glasses.
+        </p>
+        <p>
+            It all began in a small co-working space, where five friends—each from different professional backgrounds—came together with one goal in mind:
+            to build a brand that would stand out. From sourcing high-quality materials to designing innovative styles, we’ve worked tirelessly to bring Visionary Optics to life.
+        </p>
+        <p>
+            As we look ahead, we’re driven by the same passion that sparked this journey. Together with our customers, we’re redefining eyewear—one pair of glasses at a time.
+        </p>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <h2>Meet Our Team</h2>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3 col-lg-3">
+                    <div class="team-card">
+                        <img th:src="@{/images/avatar/avt3.jpg}" alt="Team Member 1" width="100px" height="100px">
+                        <h5>Văn Chí Hiếu</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class="team-card">
+                        <img th:src="@{/images/avatar/avt2.jpg}" alt="Team Member 2" width="100px" height="100px">
+                        <h5>Nguyễn Văn Đạt</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class="team-card">
+                        <img th:src="@{/images/avatar/avt3.jpg}" alt="Team Member 3" width="100px" height="100px">
+                        <h5>Đinh Tiến Đạt</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class="team-card">
+                        <img th:src="@{/images/avatar/avt2.jpg}" alt="Team Member 4" width="100px" height="100px">
+                        <h5>Trương Chi Bảo</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    	<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/bootstrap.bundle.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/cart.js}"></script>
+    <script type="text/javascript" th:if="${popup}" th:inline="javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('loginPopup').style.display = 'block';
+    });
+
+	function closePopup() {
+	    document.getElementById("loginPopup").style.display = "none";
+	}
+
+	// Đóng popup khi click bên ngoài
+	window.onclick = function(event) {
+	    var popup = document.getElementById("loginPopup");
+	    if (event.target == popup) {
+	        popup.style.display = "none";
+	    }
+	}
+	</script>
+	<script type="text/javascript" th:inline="javascript">
+		// Ensure cart quantity display persists
+		document.addEventListener('DOMContentLoaded', function() {
+			const cartQuantity = /*[[${cartQuantity}]]*/ 0;
+			const soluongCart = document.querySelector('.soluong_cart');
+			if (soluongCart && cartQuantity && cartQuantity > 0) {
+				soluongCart.textContent = cartQuantity;
+			}
+		});
+	</script>
+</body>
+</html>
