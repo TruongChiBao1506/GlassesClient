@@ -10,6 +10,7 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
 	rel="stylesheet">
 <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+<link rel="stylesheet" th:href="@{/css/navbar-dropdown.css}">
 <link rel="stylesheet" th:href="@{/css/index.css}">
 <link rel="stylesheet" th:href="@{/css/chatbot.css}">
 <style>
@@ -432,7 +433,7 @@ footer {
 									<button class="button button--red">Sign Up</button>
 								</a>
 							</div>
-							<div th:if="${session.username != null}">
+							<div th:if="${session.username != null}" class="dropdown">
 								<a class="nav-link dropdown-toggle" href="#"
 									id="navbarDropdownMenuLink" role="button"
 									data-toggle="dropdown" aria-haspopup="true"
@@ -441,15 +442,25 @@ footer {
 									class="user-avatar" style="width: 32px; height: 32px" /> <span
 									th:text="${session.fullname}"></span>
 								</a>
-
-								<div class="dropdown-menu" style="left: -100px"
+								<div class="dropdown-menu" style="left: -150px"
 									aria-labelledby="navbarDropdownMenuLink">
-									<a class="dropdown-item" th:href="@{/profile}">Xem thông
-										tin cá nhân</a> <a class="dropdown-item"
-										th:href="@{/changePassword}">Đổi mật khẩu</a> <a
-										class="dropdown-item" th:href="@{/orderHistory}">Lịch sử
-										mua hàng</a> <a class="dropdown-item" th:href="@{/logout}">Đăng
-										xuất</a>
+									<a class="dropdown-item" th:href="@{/profile}"> <i
+										class="fas fa-user"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Xem thông tin cá nhân
+									</a> <a class="dropdown-item" th:href="@{/changePassword}"> <i
+										class="fas fa-key"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Đổi mật khẩu
+									</a> <a class="dropdown-item" th:href="@{/orderHistory}"> <i
+										class="fas fa-history"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Lịch sử mua hàng
+									</a> <a class="dropdown-item" th:href="@{/logout}"> <i
+										class="fas fa-sign-out-alt"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Đăng xuất
+									</a>
 
 								</div>
 							</div>
@@ -473,36 +484,53 @@ footer {
 			</button>
 			<div class="collapse navbar-collapse" id="navbarInstruction">
 				<ul class="navbar-nav ml-auto" id="mainNav">
-					<li class="nav-item"><a class="nav-link" th:href="@{/home}">Home</a></li>
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
 					<li class="nav-item dropdown"><a
-						class="nav-link dropdown-toggle" href="#"
-						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false"> Eyeglasses </a>
-						<div class="dropdown-menu"
-							aria-labelledby="navbarDropdownMenuLink">
-							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">Men's
-								Eyeglasses</a> <a class="dropdown-item"
-								th:href="@{/products/eyeglasses/women}">Women's Eyeglasses</a>
+						class="nav-link dropdown-toggle" href="#" id="eyeglassDropdown"
+						role="button" data-toggle="dropdown" aria-haspopup="true"
+						aria-expanded="false"> <i class="fa fa-glasses mr-1"></i>
+							Eyeglasses
+					</a>
+						<div class="dropdown-menu" aria-labelledby="eyeglassDropdown">
+							<h6 class="dropdown-header">Shop by Gender</h6>
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">
+								<i class="fas fa-male"></i> Men's Eyeglasses
+							</a> <a class="dropdown-item" th:href="@{/products/eyeglasses/women}">
+								<i class="fas fa-female"></i> Women's Eyeglasses
+							</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" th:href="@{/products/eyeglasses}"> <i
+								class="fas fa-th-large"></i> View All Eyeglasses
+							</a>
 						</div></li>
 					<li class="nav-item dropdown"><a
-						class="nav-link dropdown-toggle" href="#"
-						id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false"> Sunglasses </a>
-						<div class="dropdown-menu"
-							aria-labelledby="navbarDropdownMenuLink">
-							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">Men's
-								Sunglasses</a> <a class="dropdown-item"
-								th:href="@{/products/sunglasses/women}">Women's Sunglasses</a>
+						class="nav-link dropdown-toggle" href="#" id="sunglassDropdown"
+						role="button" data-toggle="dropdown" aria-haspopup="true"
+						aria-expanded="false"> <i class="fas fa-sun mr-1"></i>
+							Sunglasses
+					</a>
+						<div class="dropdown-menu" aria-labelledby="sunglassDropdown">
+							<h6 class="dropdown-header">Shop by Gender</h6>
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">
+								<i class="fas fa-male"></i> Men's Sunglasses
+							</a> <a class="dropdown-item" th:href="@{/products/sunglasses/women}">
+								<i class="fas fa-female"></i> Women's Sunglasses
+							</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" th:href="@{/products/sunglasses}"> <i
+								class="fas fa-th-large"></i> View All Sunglasses
+							</a>
 						</div></li>
-					<li class="nav-item"><a class="nav-link" th:href="@{/about}">About</a></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/about}"><i
+							class="fas fa-info-circle mr-1"></i> About</a></li>
 					<!-- <li class="nav-item">
                         <a class="nav-link" href="#">Accessories</a>
                     </li> -->
-					<li class="nav-item active"><a class="nav-link"
-						th:href="@{/chatbot}"><i class="fas fa-comments"></i>virtual
-							assistant</a>
-					<li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contacts</a>
-					</li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i
+							class="fas fa-comments mr-1"></i> Virtual Assistant</a></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}"><i
+							class="fas fa-envelope mr-1"></i> Contacts</a></li>
 				</ul>
 			</div>
 		</nav>
@@ -675,6 +703,7 @@ footer {
 
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script type="text/javascript" th:src="@{/js/navbar-dropdown.js}"></script>
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
@@ -930,7 +959,7 @@ footer {
                 
                 // Gửi tin nhắn đến server
                 $.ajax({
-                    url: 'http://localhost:8080/api/chatbot/chat',
+                    url: 'http://54.254.82.176:8080/api/chatbot/chat',
                     type: 'POST',
                     data: JSON.stringify(chatRequest),
                     contentType: 'application/json',

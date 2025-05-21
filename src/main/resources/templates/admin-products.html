@@ -50,6 +50,64 @@
 	background-color: #d4edda;
 	color: #155724;
 }
+
+/* Pagination styles */
+.pagination-container {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.pagination .page-link {
+	color: #333;
+	border: 1px solid #ddd;
+	background-color: #fff;
+	transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+	background-color: #f0f0f0;
+	color: #000;
+}
+
+.pagination .page-item.active .page-link {
+	background-color: #0d6efd;
+	border-color: #0d6efd;
+	color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+	color: #6c757d;
+	pointer-events: none;
+	background-color: #fff;
+	border-color: #dee2e6;
+}
+
+.pagination-info {
+	color: #6c757d;
+	font-size: 14px;
+}
+
+.items-per-page-selector {
+	padding: 0 10px;
+}
+
+.items-per-page-selector select {
+	border-radius: 4px;
+	border: 1px solid #ced4da;
+	background-color: #fff;
+}
+
+/* Show at most 5 pages in pagination for better mobile view */
+@media (max-width: 576px) {
+	.pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+		display: none;
+	}
+	
+	.pagination-container {
+		overflow-x: auto;
+		padding-bottom: 10px;
+	}
+}
 </style>
 </head>
 <body>
@@ -127,10 +185,11 @@
 		<!-- Sidebar -->
 		<aside id="sidebar">
 			<div class="sidebar-title">
-				<div class="sidebar-brand">
-					<span class="material-icons-outlined">shopping_cart</span> STORE
-				</div>
-				<span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+				<a th:href="@{/home}" style="text-decoration: none; color: #9e9ea4">
+					<div class="sidebar-brand">
+						<span class="material-icons-outlined">shopping_cart</span> STORE
+					</div>
+				</a> <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
 			</div>
 
 			<ul class="sidebar-list">
@@ -189,17 +248,19 @@
 			
 			<div class="user-table-container">
 				<div class="table-header">
-					<!-- Tìm kiếm sản phẩm -->
-					<div class="search-container">
+					<!-- Tìm kiếm sản phẩm -->					<div class="search-container">
 						<form action="/products/searchGlasses" method="get">
 							<table>
-								<tr>
-									<td><input type="text" name="keyword" class="form-control"
-										placeholder="Tìm kiếm sản phẩm..." required></td>
+								<tr>									<td><input type="text" name="keyword" class="form-control"
+										placeholder="Tìm kiếm sản phẩm..." required th:value="${keyword != null ? keyword : ''}"></td>
 									<td>
 										<button type="submit" class="btn btn-primary">Tìm
 											kiếm</button>
 									</td>
+									<td th:if="${keyword != null}">
+										<a th:href="@{/products}" class="btn btn-secondary">Xóa tìm kiếm</a>
+									</td>									<!-- Thêm tham số ẩn cho phân trang -->
+									<input type="hidden" name="page" value="1">									<input type="hidden" name="size" th:value="${currentSize != null ? currentSize : 10}">
 								</tr>
 							</table>
 						</form>
@@ -210,10 +271,13 @@
 						</a>
 					</div>
 				</div>
-				
-				<!-- Danh sách sản phẩm -->
+						<!-- Danh sách sản phẩm -->
 				<div class="table-responsive">
-					<table>
+					<div th:if="${products == null || products.isEmpty()}" class="alert alert-info text-center my-3">
+						<span th:if="${keyword != null}">Không tìm thấy sản phẩm nào phù hợp với từ khóa: <strong th:text="${keyword}"></strong></span>
+						<span th:unless="${keyword != null}">Không có sản phẩm nào</span>
+					</div>
+					<table th:if="${products != null && !products.isEmpty()}">
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -259,8 +323,73 @@
 
 								</td>
 							</tr>
-						</tbody>
-					</table>
+						</tbody>					</table>
+				</div>
+						<!-- Pagination Navigation -->
+				<div class="pagination-container mt-4" th:if="${totalPages != null && totalPages > 0}">
+					<nav aria-label="Page navigation">
+						<ul class="pagination justify-content-center">							<!-- Previous button -->
+							<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+								<a class="page-link" 
+								   th:href="${keyword != null} ? 
+								            @{/products/searchGlasses(keyword=${keyword}, page=${currentPage}, size=${currentSize})} : 
+								            @{/products(page=${currentPage}, size=${currentSize})}" 
+								   aria-label="Previous">
+									<span aria-hidden="true">&laquo;</span>
+								</a>
+							</li>
+							
+							<!-- Page numbers -->
+							<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+								th:classappend="${currentPage == i} ? 'active' : ''">
+								<a class="page-link" 
+								   th:href="${keyword != null} ? 
+								            @{/products/searchGlasses(keyword=${keyword}, page=${i + 1}, size=${currentSize})} : 
+								            @{/products(page=${i + 1}, size=${currentSize})}" 
+								   th:text="${i + 1}"></a>
+							</li>
+							
+							<!-- Next button -->
+							<li class="page-item" th:classappend="${currentPage == totalPages - 1 || totalPages == 0} ? 'disabled' : ''">
+								<a class="page-link" 
+								   th:href="${keyword != null} ? 
+								            @{/products/searchGlasses(keyword=${keyword}, page=${currentPage + 2}, size=${currentSize})} : 
+								            @{/products(page=${currentPage + 2}, size=${currentSize})}" 
+								   aria-label="Next">
+									<span aria-hidden="true">&raquo;</span>
+								</a>
+							</li>
+						</ul>
+					</nav>					<!-- Pagination info and size selector -->
+					<div class="d-flex justify-content-center align-items-center mt-2">
+						<span class="pagination-info me-3">
+							Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>
+							<span th:if="${totalItems > 0}">
+								(Hiển thị <span th:text="${currentPage * currentSize + 1}"></span> - 
+								<span th:text="${currentPage * currentSize + #lists.size(products)}"></span> 
+								trong tổng số <span th:text="${totalItems}"></span> sản phẩm)
+							</span>
+							<span th:unless="${totalItems > 0}">
+								(Không có sản phẩm nào)
+							</span>
+						</span>
+						
+						<!-- Items per page selector -->
+						<div class="items-per-page-selector">							<form id="pageSizeForm" method="get" th:action="${keyword != null ? '/products/searchGlasses' : '/products'}">
+								<input type="hidden" name="page" value="1">
+								<input type="hidden" name="keyword" th:if="${keyword != null}" th:value="${keyword}">
+								<div class="d-flex align-items-center">
+									<label for="size" class="me-2">Hiển thị:</label>
+									<select id="size" name="size" class="form-select form-select-sm" style="width: auto;" onchange="document.getElementById('pageSizeForm').submit()">
+										<option value="5" th:selected="${currentSize == 5}">5</option>
+										<option value="10" th:selected="${currentSize == 10}">10</option>
+										<option value="20" th:selected="${currentSize == 20}">20</option>
+										<option value="50" th:selected="${currentSize == 50}">50</option>
+									</select>
+								</div>
+							</form>
+						</div>
+					</div>
 				</div>
 			</div>
 		</main>

@@ -1,0 +1,23 @@
+/* Compact Button Style */
+.compact-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: auto;
+    transition: background-color 0.2s ease;
+}
+
+.compact-btn:hover {
+    background-color: #218838;
+}
+
+.compact-btn .ico {
+    font-size: 18px;
+}

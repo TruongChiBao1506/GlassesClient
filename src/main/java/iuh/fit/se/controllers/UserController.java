@@ -44,24 +44,23 @@ public class UserController {
 
 	@GetMapping("/profile")
 	public String profile(Model model, HttpSession session) {
-		
+
 		String username = (String) session.getAttribute("username");
-		System.out.println("username: "+ username);
-		
+		System.out.println("username: " + username);
+
 		ApiResponse<User> response = userService.findByUsername(username);
-		
+
 		if (response == null || response.getStatus() != 200) {
 			model.addAttribute("error", "Không thể tải thông tin người dùng");
 		}
-		
-		
+
 		// Thêm dữ liệu vào model nếu có
 		if (response != null && response.getStatus() == 200) {
 			model.addAttribute("user", response.getData());
 		} else {
 			model.addAttribute("user", null);
 		}
-		
+
 		return "profile";
 	}
 
@@ -100,42 +99,61 @@ public class UserController {
 	}
 
 	@GetMapping("/userList")
-	public String showUserList(Model model, HttpSession session) {
+	public String showUserList(@RequestParam(name = "page", defaultValue = "1") int page,
+			@RequestParam(name = "size", defaultValue = "10") int size, Model model, HttpSession session) {
 		String role = (String) session.getAttribute("role");
 		String token = (String) session.getAttribute("token");
 		if (role != null && (role.equals("ADMIN") || role.equals("SUPER"))) {
 			// Tạo một danh sách để lưu trữ các thông báo lỗi
 			List<String> errorMessages = new ArrayList<>();
-			
-			ApiResponse<List<User>> response = userService.getAllUsers();
+
+			// Điều chỉnh page để phù hợp với API (chuyển từ 1-based sang 0-based)
+			int pageForApi = page > 0 ? page - 1 : 0;
+
+			ApiResponse<Map<String, Object>> response = userService.getAllUsersPaginated(pageForApi, size);
 			ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-			
+
 			if (response == null || response.getStatus() != 200) {
 				errorMessages.add("Không thể tải dữ liệu người dùng");
 			}
 			if (responseNotifications == null || responseNotifications.getStatus() != 200) {
 				errorMessages.add("Không thể lấy danh sách thông báo");
 			}
-			
+
 			// Thêm danh sách lỗi vào model nếu có lỗi
 			if (!errorMessages.isEmpty()) {
 				model.addAttribute("errorMessages", errorMessages);
 			}
-			
+
 			// Thêm dữ liệu vào model nếu có
 			if (response != null && response.getStatus() == 200) {
-				model.addAttribute("users", response.getData());
+				Map<String, Object> paginationData = response.getData();
+
+				// Thêm dữ liệu cho danh sách người dùng
+				model.addAttribute("users", paginationData.get("data"));
+
+				// Thêm thông tin phân trang
+				model.addAttribute("currentPage", paginationData.get("currentPage"));
+				model.addAttribute("totalItems", paginationData.get("totalItems"));
+				model.addAttribute("totalPages", paginationData.get("totalPages"));
+				model.addAttribute("hasMore", paginationData.get("hasMore"));
+				model.addAttribute("currentSize", size);
 			} else {
 				model.addAttribute("users", List.of());
+				model.addAttribute("currentPage", 0);
+				model.addAttribute("totalItems", 0);
+				model.addAttribute("totalPages", 0);
+				model.addAttribute("hasMore", false);
+				model.addAttribute("currentSize", size);
 			}
-			
 			if (responseNotifications != null && responseNotifications.getStatus() == 200) {
 				model.addAttribute("notifications", responseNotifications.getData());
 			} else {
 				model.addAttribute("notifications", List.of());
 			}
-			
+
 			model.addAttribute("role", session.getAttribute("role"));
+			model.addAttribute("token", token);
 			return "userList";
 		} else {
 			return "accessDenied";
@@ -197,8 +215,9 @@ public class UserController {
 	@GetMapping("/users/update/{userId}")
 	public String showUpdateUserForm(@PathVariable("userId") long userId, Model model) {
 		ApiResponse<User> response = userService.getUserById(userId);
-	
-		System.out.println("response: " + response.getData() + " " + response.getStatus() + " " + response.getMessage());
+
+		System.out
+				.println("response: " + response.getData() + " " + response.getStatus() + " " + response.getMessage());
 		List<Notification> notifications = notificationService.findByIsReadFalse().getData();
 
 		if (response != null && response.getStatus() == 200) {
@@ -218,7 +237,7 @@ public class UserController {
 	public String updateUser(@PathVariable("userId") Long userId, @ModelAttribute User user,
 			RedirectAttributes redirectAttributes) {
 		user.setId(userId);
-		System.out.println("updateUser: "+ user);
+		System.out.println("updateUser: " + user);
 		ApiResponse<String> response = userService.updateUser(user);
 		System.out.println(response.getErrors());
 		if (response != null && response.getStatus() == 200) {
@@ -237,22 +256,22 @@ public class UserController {
 	public String showUserDetails(@PathVariable("userId") long userId, Model model) {
 		// Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
+
 		ApiResponse<User> response = userService.getUserById(userId);
 		ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-		
+
 		if (response == null || response.getStatus() != 200) {
 			errorMessages.add("Không thể lấy thông tin người dùng");
 		}
 		if (responseNotifications == null || responseNotifications.getStatus() != 200) {
 			errorMessages.add("Không thể lấy danh sách thông báo");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
-		
+
 		// Thêm dữ liệu vào model nếu có
 		if (response != null && response.getStatus() == 200) {
 			User user = response.getData();
@@ -262,52 +281,97 @@ public class UserController {
 			model.addAttribute("error", "Không thể lấy thông tin người dùng");
 			return "redirect:/userList";
 		}
-		
+
 		if (responseNotifications != null && responseNotifications.getStatus() == 200) {
 			model.addAttribute("notifications", responseNotifications.getData());
 		} else {
 			model.addAttribute("notifications", List.of());
 		}
-		
+
 		return "userDetails";
 	}
 
 	@GetMapping("/users/filter")
 	public String filterUsers(@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "gender", required = false) String gender,
-			@RequestParam(value = "role", required = false) String role, Model model, HttpSession session) {
+			@RequestParam(value = "role", required = false) String role,
+			@RequestParam(name = "page", defaultValue = "1") int page,
+			@RequestParam(name = "size", defaultValue = "10") int size, Model model, HttpSession session) {
+		String userRole = (String) session.getAttribute("role");
+		String token = (String) session.getAttribute("token");
+
+		if (userRole == null || (!userRole.equals("ADMIN") && !userRole.equals("SUPER"))) {
+			return "accessDenied";
+		}
+
+		// Xử lý các tham số rỗng
+		keyword = (keyword != null && !keyword.isBlank()) ? keyword : null;
+		gender = (gender != null && !gender.isBlank()) ? gender : null;
+		role = (role != null && !role.isBlank()) ? role : null;
+
+		// Nếu tất cả các tham số đều null, chuyển hướng đến danh sách người dùng thông
+		// thường
+		if (keyword == null && gender == null && role == null) {
+			return "redirect:/userList?page=" + page + "&size=" + size;
+		}
+
 		// Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<User>> responseUsers = userService.filterUsers(keyword, gender, role);
+
+		// Điều chỉnh page để phù hợp với API (chuyển từ 1-based sang 0-based)
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		ApiResponse<Map<String, Object>> responseUsers = userService.filterUsersPaginated(keyword, gender, role,
+				pageForApi, size);
 		ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-		
+
 		if (responseUsers == null || responseUsers.getStatus() != 200) {
-			errorMessages.add("Không thể lọc danh sách người dùng");
+			errorMessages.add("Không thể tải dữ liệu người dùng theo bộ lọc");
 		}
 		if (responseNotifications == null || responseNotifications.getStatus() != 200) {
 			errorMessages.add("Không thể lấy danh sách thông báo");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
-		
+
 		// Thêm dữ liệu vào model nếu có
 		if (responseUsers != null && responseUsers.getStatus() == 200) {
-			model.addAttribute("users", responseUsers.getData());
+			Map<String, Object> paginationData = responseUsers.getData();
+
+			// Thêm dữ liệu cho danh sách người dùng
+			model.addAttribute("users", paginationData.get("data"));
+
+			// Thêm thông tin phân trang
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+			model.addAttribute("currentSize", size);
+
+			// Lưu lại thông tin bộ lọc để dùng cho các liên kết phân trang
+			model.addAttribute("keyword", keyword);
+			model.addAttribute("selectedGender", gender);
+			model.addAttribute("selectedRole", role);
 		} else {
 			model.addAttribute("users", List.of());
+			model.addAttribute("currentPage", 0);
+			model.addAttribute("totalItems", 0);
+			model.addAttribute("totalPages", 0);
+			model.addAttribute("hasMore", false);
+			model.addAttribute("currentSize", size);
 		}
-		
+
 		if (responseNotifications != null && responseNotifications.getStatus() == 200) {
 			model.addAttribute("notifications", responseNotifications.getData());
 		} else {
 			model.addAttribute("notifications", List.of());
 		}
-		
-		model.addAttribute("role", session.getAttribute("role"));
+
+		model.addAttribute("role", userRole);
+		model.addAttribute("token", token);
 		return "userList";
 	}
 }

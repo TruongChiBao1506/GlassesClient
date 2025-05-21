@@ -2,10 +2,12 @@ package iuh.fit.se.services.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
 	private RestClient restClient;
 	private ObjectMapper objectMapper;
-	private static final String ENDPOINT = "http://localhost:8080/api";
+	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
 
 	@Autowired
 	private SessionUtil sessionUtil;
@@ -218,12 +220,37 @@ public class UserServiceImpl implements UserService {
 					return apiResponse;
 				});
 	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public ApiResponse<List<User>> filterUsers(String keyword, String gender, String role) {
+		// Xử lý các tham số null để tránh lỗi khi truyền vào URL
+		keyword = (keyword != null) ? keyword : "";
+		gender = (gender != null) ? gender : "";
+		role = (role != null) ? role : "";
+		
+		StringBuilder urlBuilder = new StringBuilder(ENDPOINT + "/users/filter?");
+		
+		// Chỉ thêm các tham số không rỗng vào URL
+		if (!keyword.isEmpty()) {
+			urlBuilder.append("keyword=").append(keyword);
+		}
+		if (!gender.isEmpty()) {
+			if (urlBuilder.toString().endsWith("?")) {
+				urlBuilder.append("gender=").append(gender);
+			} else {
+				urlBuilder.append("&gender=").append(gender);
+			}
+		}
+		if (!role.isEmpty()) {
+			if (urlBuilder.toString().endsWith("?")) {
+				urlBuilder.append("role=").append(role);
+			} else {
+				urlBuilder.append("&role=").append(role);
+			}
+		}
+		
 		return restClient.get()
-				.uri(ENDPOINT + "/users/filter?keyword=" + keyword + "&gender=" + gender + "&role=" + role)
+				.uri(urlBuilder.toString())
 				.header("Authorization", "Bearer " + sessionUtil.getToken())
 				.header("Cookie", "refreshToken=" + sessionUtil.getRefreshToken()).exchange((request, response) -> {
 					ApiResponse<List<User>> apiResponse = null;
@@ -232,6 +259,98 @@ public class UserServiceImpl implements UserService {
 						apiResponse.setData(objectMapper.convertValue(apiResponse.getData(), List.class));
 					} catch (IOException e) {
 						// TODO: handle exception
+						System.err.println("Lỗi đọc response: " + e.getMessage());
+						apiResponse = new ApiResponse<>();
+						apiResponse.setMessage("Không thể phân tích phản hồi từ server");
+					}
+					return apiResponse;
+				});
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ApiResponse<Map<String, Object>> getAllUsersPaginated(int page, int size) {
+		return restClient.get().uri(ENDPOINT + "/users/all-by-role/" + sessionUtil.getUsername() + "?page=" + page + "&size=" + size)
+				.header("Authorization", "Bearer " + sessionUtil.getToken())
+				.header("Cookie", "refreshToken=" + sessionUtil.getRefreshToken())
+				.exchange((request, response) -> {
+					ApiResponse<Map<String, Object>> apiResponse = null;
+					try (InputStream is = response.getBody()) {
+						// Đọc response dạng Map
+						Map<String, Object> responseMap = objectMapper.readValue(is, Map.class);
+						
+						// Tạo ApiResponse mới
+						apiResponse = new ApiResponse<>();
+						apiResponse.setStatus((Integer) responseMap.get("status"));
+						apiResponse.setMessage("Success");
+						
+						// Tạo Map chứa thông tin phân trang
+						Map<String, Object> paginationData = new HashMap<>();
+						paginationData.put("data", objectMapper.convertValue(responseMap.get("data"), 
+								new TypeReference<List<User>>() {}));
+						paginationData.put("currentPage", responseMap.get("currentPage"));
+						paginationData.put("totalItems", responseMap.get("totalItems"));
+						paginationData.put("totalPages", responseMap.get("totalPages"));
+						paginationData.put("hasMore", responseMap.get("hasMore"));
+						
+						apiResponse.setData(paginationData);
+					} catch (IOException e) {
+						System.err.println("Lỗi đọc response users: " + e.getMessage());
+						apiResponse = new ApiResponse<>();
+						apiResponse.setMessage("Không thể phân tích phản hồi từ server");
+					}
+					return apiResponse;
+				});
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ApiResponse<Map<String, Object>> filterUsersPaginated(String keyword, String gender, String role, int page, int size) {
+		// Xử lý các tham số null để tránh lỗi khi truyền vào URL
+		keyword = (keyword != null) ? keyword : "";
+		gender = (gender != null) ? gender : "";
+		role = (role != null) ? role : "";
+		
+		StringBuilder urlBuilder = new StringBuilder(ENDPOINT + "/users/filter?");
+		urlBuilder.append("page=").append(page).append("&size=").append(size);
+		
+		// Chỉ thêm các tham số không rỗng vào URL
+		if (!keyword.isEmpty()) {
+			urlBuilder.append("&keyword=").append(keyword);
+		}
+		if (!gender.isEmpty()) {
+			urlBuilder.append("&gender=").append(gender);
+		}
+		if (!role.isEmpty()) {
+			urlBuilder.append("&role=").append(role);
+		}
+		
+		return restClient.get()
+				.uri(urlBuilder.toString())
+				.header("Authorization", "Bearer " + sessionUtil.getToken())
+				.header("Cookie", "refreshToken=" + sessionUtil.getRefreshToken())
+				.exchange((request, response) -> {
+					ApiResponse<Map<String, Object>> apiResponse = null;
+					try (InputStream is = response.getBody()) {
+						// Đọc response dạng Map
+						Map<String, Object> responseMap = objectMapper.readValue(is, Map.class);
+						
+						// Tạo ApiResponse mới
+						apiResponse = new ApiResponse<>();
+						apiResponse.setStatus((Integer) responseMap.get("status"));
+						apiResponse.setMessage("Success");
+						
+						// Tạo Map chứa thông tin phân trang
+						Map<String, Object> paginationData = new HashMap<>();
+						paginationData.put("data", objectMapper.convertValue(responseMap.get("data"), 
+								new TypeReference<List<User>>() {}));
+						paginationData.put("currentPage", responseMap.get("currentPage"));
+						paginationData.put("totalItems", responseMap.get("totalItems"));
+						paginationData.put("totalPages", responseMap.get("totalPages"));
+						paginationData.put("hasMore", responseMap.get("hasMore"));
+						
+						apiResponse.setData(paginationData);
+					} catch (IOException e) {
 						System.err.println("Lỗi đọc response: " + e.getMessage());
 						apiResponse = new ApiResponse<>();
 						apiResponse.setMessage("Không thể phân tích phản hồi từ server");

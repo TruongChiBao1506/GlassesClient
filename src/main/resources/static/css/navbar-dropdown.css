@@ -1,0 +1,300 @@
+/* Navbar Dropdown Styling */
+.navbar-nav .dropdown-menu {
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    padding: 0.8rem 0;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    min-width: 220px;
+    background-color: #ffffff;
+    backdrop-filter: blur(10px);
+}
+
+.navbar-nav .dropdown:hover .dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.navbar-nav .dropdown-menu {
+    display: block;
+    opacity: 0;
+    transform: translateY(10px);
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Override specific styles from index.css */
+#navbarInstruction .dropdown-menu {
+    background-color: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+#navbarInstruction .dropdown-item {
+    color: #333 !important;
+    padding: 0.7rem 1.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    position: relative;
+    border-radius: 4px;
+    margin: 0 0.5rem;
+}
+
+#navbarInstruction .dropdown-item:hover {
+    background-color: rgba(231, 76, 60, 0.06) !important;
+    color: #e74c3c !important;
+    transform: translateX(5px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* Original hover style for other navbars */
+.navbar-nav .dropdown-item:hover {
+    background-color: rgba(231, 76, 60, 0.06);
+    color: #e74c3c;
+    transform: translateX(5px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* Subtle enhancement for main nav items */
+.navbar-nav .nav-item .nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Keep original hover effect from the site's CSS */
+/* Just add slight color change on hover */
+.navbar-nav .nav-item:hover .nav-link {
+    color: #e74c3c;
+}
+
+.navbar-nav .dropdown-item i {
+    margin-right: 10px;
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    color: #4a90e2;
+    transition: transform 0.2s ease;
+}
+
+.navbar-nav .dropdown-item:hover i {
+    transform: translateX(2px);
+    color: #e74c3c;
+}
+
+/* Add arrow to dropdown toggle */
+.navbar-nav .dropdown-toggle::after {
+    margin-left: 0.5em;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+}
+
+.navbar-nav .dropdown:hover .dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+/* Add animation for dropdown items */
+.navbar-nav .dropdown-item {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInItem 0.3s forwards;
+}
+
+@keyframes fadeInItem {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar-nav .dropdown-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.navbar-nav .dropdown-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.navbar-nav .dropdown-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+/* Override the dropdown item styles from index.css */
+#navbarInstruction .dropdown-item:focus, 
+#navbarInstruction .dropdown-item:hover {
+    background-color: rgba(231, 76, 60, 0.06) !important;
+    color: #e74c3c !important;
+}
+
+/* Adding subtle indicator for active dropdown item */
+.navbar-nav .dropdown-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background-color: rgba(231, 76, 60, 0.5);
+    transform: scaleY(0);
+    transition: transform 0.2s ease;
+}
+
+.navbar-nav .dropdown-item:hover::before {
+    transform: scaleY(1);
+}
+
+/* Dropdown header styling */
+.navbar-nav .dropdown-header {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4a90e2;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(to right, rgba(74, 144, 226, 0.05), rgba(255, 255, 255, 0));
+    margin-bottom: 5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Style for dropdown divider */
+.navbar-nav .dropdown-divider {
+    margin: 0.5rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    opacity: 0.7;
+}
+
+/* User profile dropdown styling */
+.myNavBar__right .dropdown-toggle {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    position: relative;
+}
+
+.myNavBar__right .dropdown-toggle:hover {
+    background-color: #e9ecef;
+}
+
+.myNavBar__right .dropdown-toggle:active {
+    background-color: #dee2e6;
+    transform: translateY(1px);
+}
+
+/* Thêm chỉ báo click cho dropdown profile */
+.myNavBar__right .dropdown-toggle::after {
+    content: '\f0d7';
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-left: 8px;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: #6c757d;
+}
+
+.myNavBar__right .dropdown.show .dropdown-toggle::after {
+    transform: rotate(180deg);
+    color: #e74c3c;
+}
+
+.myNavBar__right .user-avatar {
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-right: 8px;
+    transition: transform 0.2s ease;
+}
+
+.myNavBar__right .dropdown-toggle:hover .user-avatar {
+    transform: scale(1.1);
+}
+
+.myNavBar__right .dropdown-menu {
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    padding: 0.8rem 0;
+    margin-top: 10px;
+    min-width: 200px;
+    animation: fadeInDropdown 0.3s ease forwards;
+    background-color: #ffffff;
+    backdrop-filter: blur(10px);
+    z-index: 1030;
+    /* Mặc định ẩn dropdown */
+    display: none;
+}
+
+/* Hiển thị rõ ràng khi dropdown được hiển thị */
+.myNavBar__right .dropdown-menu.show {
+    display: block;
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.myNavBar__right .dropdown-item {
+    padding: 0.7rem 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    margin: 0 5px;
+    line-height: 1.5;
+}
+
+/* Completely new approach for icons */
+/* Remove pseudo-elements and use actual icon elements */
+.myNavBar__right .dropdown-item {
+    padding: 0.7rem 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+/* Remove all :before pseudo elements */
+.myNavBar__right .dropdown-item:before {
+    content: none;
+}
+
+/* We'll add the icons using HTML in home.html */
+
+.myNavBar__right .dropdown-item:hover {
+    background-color: rgba(231, 76, 60, 0.06);
+    color: #e74c3c;
+    transform: translateX(5px);
+    box-shadow: 0 1px 3px rgba(231, 76, 60, 0.1);
+}
+
+/* Styling for dropdown item icons */
+.myNavBar__right .dropdown-item i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a90e2;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+}
+
+.myNavBar__right .dropdown-item:hover i {
+    color: #e74c3c;
+    transform: translateX(2px);
+}

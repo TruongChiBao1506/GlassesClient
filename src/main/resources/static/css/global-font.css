@@ -1,0 +1,69 @@
+/* 
+ * Global Font CSS - Áp dụng font Arial cho toàn bộ trang web
+ */
+
+/* Quy tắc cơ bản áp dụng cho tất cả các phần tử */
+* {
+    font-family: Arial, sans-serif !important;
+}
+
+/* Áp dụng cho các phần tử HTML cơ bản */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    font-family: Arial, sans-serif !important;
+}
+
+/* Áp dụng cho các thành phần Bootstrap phổ biến */
+.navbar, .nav-item, .nav-link, 
+.btn, .card, .form-control, 
+.modal, .dropdown-menu, .dropdown-item,
+.container, .row, .col, 
+.table, .alert, .badge,
+.breadcrumb, .pagination, .jumbotron,
+.list-group, .list-group-item,
+.progress, .tooltip, .popover {
+    font-family: Arial, sans-serif !important;
+}
+
+/* Ghi đè các thuộc tính font-family có thể được định nghĩa inline */
+[style*="font-family"],
+[face],
+font {
+    font-family: Arial, sans-serif !important;
+}
+
+/* Đảm bảo tiêu đề và văn bản sử dụng font Arial */
+.title, .heading h2, .heading p,
+.card-title, .card-text,
+.section-title, .section-text,
+.product-title, .product-description, .product-price,
+footer h3, footer p, footer a,
+.form-label, .form-text, .form-check-label,
+.modal-title, .modal-body p {
+    font-family: Arial, sans-serif !important;
+}
+
+/* Đảm bảo font chữ trong các trang đặc biệt */
+.cart__right,
+.payment-method,
+.order-summary,
+.user-info,
+.product-details,
+.checkout-btn,
+.login-form,
+.register-form,
+.profile-info,
+.order-history {
+    font-family: Arial, sans-serif !important;
+}

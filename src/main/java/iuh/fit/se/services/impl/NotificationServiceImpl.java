@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -23,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	private RestClient restClient;
 	private ObjectMapper objectMapper;
-	private static final String ENDPOINT = "http://localhost:8080/api";
+	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
 
 	public NotificationServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
 		this.restClient = restClient;

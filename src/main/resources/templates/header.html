@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- HEADER -->
+	<header th:fragment="header">
+		<nav class="myNavBar navbar navbar-expand-lg navbar-light">
+			<div class="col-7 myNavBar__col">
+				<div class="myNavBar__left">
+					<form class="myNavBar__form-search" th:action="@{/products/search}"
+						method="get">
+						<div class="input-group">
+							<input type="text" class="form-control" name="keyword"
+								placeholder="Search for anything">
+							<div class="input-group-append">
+								<span class="input-group-text" id="basic-addon2"
+									style="padding: 0px">
+									<button class="btn" type="submit">
+										<i class="fa fa-search"></i>
+									</button>
+
+								</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-5">
+				<div class="myNavBar__right">
+					<ul class="navbar-nav mr-auto">
+						<p class="mt-2">Save 15% on two or more Rx pairs.</p>
+						<li class="nav-item"><a class="nav-link" href="#">Learn
+								more.</a></li>
+						<li class="nav-item myNavBar__cart" style="position: relative;">
+							<a class="nav-link" th:href="@{/cart?redirectTo=/home}"><i
+								class="fa fa-shopping-cart"></i></a> <span
+							style="position: absolute; left: 80%; top: 0;"
+							class="soluong_cart"></span>
+						</li>
+						<li
+							class="nav-item myNavBar__buttons d-flex justify-content-between">
+							<div th:if="${session.username == null}"
+								class="d-flex justify-content-between">
+								<a class="nav-link" th:href="@{/login}">
+									<button class="button button--white">Log In</button>
+								</a> <a class="nav-link" th:href="@{/register}">
+									<button class="button button--red">Sign Up</button>
+								</a>
+							</div>
+							<div th:if="${session.username != null}" class="dropdown">
+								<a class="nav-link dropdown-toggle" href="#"
+									id="navbarDropdownMenuLink" role="button"
+									data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="false"> <img
+									th:src="@{/images/avatar/Avatar64.png}" alt="Avatar"
+									class="user-avatar" style="width: 32px; height: 32px" /> <span
+									th:text="${session.fullname}"></span>
+								</a>
+								<div class="dropdown-menu" style="left: -150px"
+									aria-labelledby="navbarDropdownMenuLink">
+									<a class="dropdown-item" th:href="@{/profile}"> <i
+										class="fas fa-user"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Xem thông tin cá nhân
+									</a> <a class="dropdown-item" th:href="@{/changePassword}"> <i
+										class="fas fa-key"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Đổi mật khẩu
+									</a> <a class="dropdown-item" th:href="@{/orderHistory}"> <i
+										class="fas fa-history"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Lịch sử mua hàng
+									</a> <a class="dropdown-item" th:href="@{/logout}"> <i
+										class="fas fa-sign-out-alt"
+										style="width: 20px; margin-right: 10px; text-align: center;"></i>
+										Đăng xuất
+									</a>
+
+								</div>
+							</div>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<nav class="navInstruction navbar navbar-expand-md">
+			<a class="navbar-brand text-center" th:href="@{/home}">
+				<p class="font-weight-bold mb-0">
+					<i class="fa fa-glasses"></i>Eyeglasses
+				</p>
+				<p class="mb-0">Shop frames below, or find five to try for free.</p>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarInstruction" aria-controls="navbarNavDropdown"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarInstruction">
+				<ul class="navbar-nav ml-auto" id="mainNav">
+					<li class="nav-item active"><a class="nav-link"
+						th:href="@{/home}">Home</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" id="eyeglassDropdown"
+						role="button" data-toggle="dropdown" aria-haspopup="true"
+						aria-expanded="false"> <i class="fa fa-glasses mr-1"></i>
+							Eyeglasses
+					</a>
+						<div class="dropdown-menu" aria-labelledby="eyeglassDropdown">
+							<h6 class="dropdown-header">Shop by Gender</h6>
+							<a class="dropdown-item" th:href="@{/products/eyeglasses/men}">
+								<i class="fas fa-male"></i> Men's Eyeglasses
+							</a> <a class="dropdown-item" th:href="@{/products/eyeglasses/women}">
+								<i class="fas fa-female"></i> Women's Eyeglasses
+							</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" th:href="@{/products/eyeglasses}"> <i
+								class="fas fa-th-large"></i> View All Eyeglasses
+							</a>
+						</div></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" id="sunglassDropdown"
+						role="button" data-toggle="dropdown" aria-haspopup="true"
+						aria-expanded="false"> <i class="fas fa-sun mr-1"></i>
+							Sunglasses
+					</a>
+						<div class="dropdown-menu" aria-labelledby="sunglassDropdown">
+							<h6 class="dropdown-header">Shop by Gender</h6>
+							<a class="dropdown-item" th:href="@{/products/sunglasses/men}">
+								<i class="fas fa-male"></i> Men's Sunglasses
+							</a> <a class="dropdown-item" th:href="@{/products/sunglasses/women}">
+								<i class="fas fa-female"></i> Women's Sunglasses
+							</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" th:href="@{/products/sunglasses}"> <i
+								class="fas fa-th-large"></i> View All Sunglasses
+							</a>
+						</div></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/about}"><i
+							class="fas fa-info-circle mr-1"></i> About</a></li>
+					<!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Accessories</a>
+                    </li> -->
+					<li class="nav-item"><a class="nav-link" th:href="@{/chatbot}"><i
+							class="fas fa-comments mr-1"></i> Virtual Assistant</a></li>
+					<li class="nav-item"><a class="nav-link" th:href="@{/contact}"><i
+							class="fas fa-envelope mr-1"></i> Contacts</a></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+</body>
+</html>

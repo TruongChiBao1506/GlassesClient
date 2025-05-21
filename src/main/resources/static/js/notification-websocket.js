@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Kết nối đến WebSocket
-    const socket = new SockJS('http://localhost:8084/ws'); 
+    const socket = new SockJS('http://54.254.82.176:8084/ws'); 
     const stompClient = Stomp.over(socket);
     
     // Tùy chọn kết nối, có thể thêm token auth nếu cần
@@ -144,7 +144,7 @@ function displayNotification(notification) {
  */
 async function markAsRead(notificationId) {
     const token = document.getElementById('token').value;
-    const url = 'http://localhost:8080/api/notifications/' + notificationId + '/mark-as-read';
+    const url = 'http://54.254.82.176:8080/api/notifications/' + notificationId + '/mark-as-read';
     console.log(token);
     try {
         const response = await fetch(url, {

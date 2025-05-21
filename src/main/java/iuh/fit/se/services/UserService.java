@@ -29,5 +29,9 @@ public interface UserService {
 	ApiResponse<List<Role>> findAll();
 	
 	ApiResponse<List<User>> filterUsers(String keyword, String gender, String role);
+	
+	ApiResponse<Map<String, Object>> getAllUsersPaginated(int page, int size);
+	
+	ApiResponse<Map<String, Object>> filterUsersPaginated(String keyword, String gender, String role, int page, int size);
 
 }

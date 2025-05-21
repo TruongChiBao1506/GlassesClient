@@ -116,10 +116,11 @@
 		<!-- Sidebar -->
 		<aside id="sidebar">
 			<div class="sidebar-title">
-				<div class="sidebar-brand">
-					<span class="material-icons-outlined">shopping_cart</span> STORE
-				</div>
-				<span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+				<a th:href="@{/home}" style="text-decoration: none; color: #9e9ea4">
+					<div class="sidebar-brand">
+						<span class="material-icons-outlined">shopping_cart</span> STORE
+					</div>
+				</a> <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
 			</div>
 
 			<ul class="sidebar-list">

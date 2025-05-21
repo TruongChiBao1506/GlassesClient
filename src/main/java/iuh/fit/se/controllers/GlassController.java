@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,62 +70,31 @@ public class GlassController {
 	private NotificationService notificationService;
 
 	@GetMapping("/eyeglasses")
-	public String getEyeGlasses(Model model) {
-		// Tạo một danh sách để lưu trữ các thông báo lỗi
-		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<Glass>> response = glassService.findByCategoryEyeGlass();
-		ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-		
-		if (response == null || response.getStatus() != 200) {
-			errorMessages.add("Không thể lấy danh sách kính mắt");
-		}
-		if (responseNotifications == null || responseNotifications.getStatus() != 200) {
-			errorMessages.add("Không thể lấy danh sách thông báo");
-		}
-		
-		// Thêm danh sách lỗi vào model nếu có lỗi
-		if (!errorMessages.isEmpty()) {
-			model.addAttribute("errorMessages", errorMessages);
-		}
-		
-		// Thêm dữ liệu vào model nếu có
-		if (response != null && response.getData() != null) {
-			model.addAttribute("glasses", response.getData());
-		} else {
-			model.addAttribute("glasses", List.of());
-		}
-		
-		if (responseNotifications != null && responseNotifications.getStatus() == 200) {
-			model.addAttribute("notifications", responseNotifications.getData());
-		} else {
-			model.addAttribute("notifications", List.of());
-		}
-		
-		return "KinhNam";
-	}
-
-	@GetMapping("/eyeglasses/men")
-	public String getEyeGlassesMen(Model model, @RequestParam(required = false) String brand,
+	public String getEyeGlasses(Model model, @RequestParam(required = false) String brand,
 			@RequestParam(required = false) String shape, @RequestParam(required = false) String material,
 			@RequestParam(required = false) String color, @RequestParam(required = false) String priceMin,
-			@RequestParam(required = false) String priceMax) {
+			@RequestParam(required = false) String priceMax, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size) {
+
 		FilterRequest filter = new FilterRequest();
 		filter.setBrands(brand);
 		filter.setShapes(shape);
 		filter.setMaterials(material);
 		filter.setColors(color);
-		if (priceMin != "")
+		if (priceMin != null && !priceMin.isEmpty())
 			filter.setMinPrice(priceMin);
-		if (priceMax != "")
+		if (priceMax != null && !priceMax.isEmpty())
 			filter.setMaxPrice(priceMax);
 
-		System.out.println("Filter: " + filter.toString());
-
-		// Tạo một danh sách để lưu trữ các thông báo lỗi
+		System.out.println("Filter: " + filter.toString()); // Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<GlassDTO>> response = glassService.findByCategoryEyeGlassMenFilter(filter);
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi phương thức đã cập nhật với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.findByCategoryEyeGlassFilter(filter, pageForApi,
+				size);
 		ApiResponse<List<String>> responseBrand = glassService.getAllBrand();
 		ApiResponse<List<String>> responseShape = glassService.getAllShape();
 		ApiResponse<List<String>> responseMaterial = glassService.getAllMaterial();
@@ -145,41 +115,164 @@ public class GlassController {
 		if (responseColor == null || responseColor.getStatus() != 200) {
 			errorMessages.add("Không thể lấy danh sách màu sắc");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
 
-		List<GlassDTO> glasses = null;
-		System.out.println("glasses Men");
-		
-		// Thêm dữ liệu vào model nếu có
+		// Xử lý dữ liệu phân trang nếu có
 		if (response != null && response.getData() != null) {
-			glasses = response.getData();
-			model.addAttribute("glasses", response.getData());
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+
+			// Thêm các tham số hiện tại để sử dụng trong phân trang
+			model.addAttribute("currentBrand", brand);
+			model.addAttribute("currentShape", shape);
+			model.addAttribute("currentMaterial", material);
+			model.addAttribute("currentColor", color);
+			model.addAttribute("currentPriceMin", priceMin);
+			model.addAttribute("currentPriceMax", priceMax);
+			model.addAttribute("currentSize", size);
 		} else {
 			model.addAttribute("glasses", List.of());
 		}
-		
+
 		if (responseBrand != null && responseBrand.getStatus() == 200) {
 			model.addAttribute("brands", responseBrand.getData());
 		} else {
 			model.addAttribute("brands", List.of());
 		}
-		
+
 		if (responseShape != null && responseShape.getStatus() == 200) {
 			model.addAttribute("shapes", responseShape.getData());
 		} else {
 			model.addAttribute("shapes", List.of());
 		}
-		
+
 		if (responseMaterial != null && responseMaterial.getStatus() == 200) {
 			model.addAttribute("materials", responseMaterial.getData());
 		} else {
 			model.addAttribute("materials", List.of());
 		}
-		
+
+		if (responseColor != null && responseColor.getStatus() == 200) {
+			model.addAttribute("colors", responseColor.getData());
+		} else {
+			model.addAttribute("colors", List.of());
+		}
+
+		model.addAttribute("category", "Eyeglasses");
+		model.addAttribute("gender", "");
+
+		return "KinhNam";
+	}
+
+	@GetMapping("/eyeglasses/men")
+	public String getEyeGlassesMen(Model model, @RequestParam(required = false) String brand,
+			@RequestParam(required = false) String shape, @RequestParam(required = false) String material,
+			@RequestParam(required = false) String color, @RequestParam(required = false) String priceMin,
+			@RequestParam(required = false) String priceMax, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size) {
+
+		FilterRequest filter = new FilterRequest();
+		filter.setBrands(brand);
+		filter.setShapes(shape);
+		filter.setMaterials(material);
+		filter.setColors(color);
+		if (priceMin != null && !priceMin.isEmpty())
+			filter.setMinPrice(priceMin);
+		if (priceMax != null && !priceMax.isEmpty())
+			filter.setMaxPrice(priceMax);
+
+		System.out.println("Filter: " + filter.toString()); // Tạo một danh sách để lưu trữ các thông báo lỗi
+		List<String> errorMessages = new ArrayList<>();
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi phương thức đã cập nhật với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.findByCategoryEyeGlassMenFilter(filter, pageForApi,
+				size);
+		ApiResponse<List<String>> responseBrand = glassService.getAllBrand();
+		ApiResponse<List<String>> responseShape = glassService.getAllShape();
+		ApiResponse<List<String>> responseMaterial = glassService.getAllMaterial();
+		ApiResponse<List<String>> responseColor = glassService.getAllColor();
+
+		if (response == null || response.getStatus() != 200) {
+			errorMessages.add("Không thể lấy danh sách kính theo bộ lọc");
+		}
+		if (responseBrand == null || responseBrand.getStatus() != 200) {
+			errorMessages.add("Không thể lấy danh sách thương hiệu");
+		}
+		if (responseShape == null || responseShape.getStatus() != 200) {
+			errorMessages.add("Không thể lấy danh sách hình dạng");
+		}
+		if (responseMaterial == null || responseMaterial.getStatus() != 200) {
+			errorMessages.add("Không thể lấy danh sách chất liệu");
+		}
+		if (responseColor == null || responseColor.getStatus() != 200) {
+			errorMessages.add("Không thể lấy danh sách màu sắc");
+		}
+
+		// Thêm danh sách lỗi vào model nếu có lỗi
+		if (!errorMessages.isEmpty()) {
+			model.addAttribute("errorMessages", errorMessages);
+		}
+
+		// Xử lý dữ liệu phân trang nếu có
+		if (response != null && response.getData() != null) {
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+
+			// Thêm các tham số hiện tại để sử dụng trong phân trang
+			model.addAttribute("currentBrand", brand);
+			model.addAttribute("currentShape", shape);
+			model.addAttribute("currentMaterial", material);
+			model.addAttribute("currentColor", color);
+			model.addAttribute("currentPriceMin", priceMin);
+			model.addAttribute("currentPriceMax", priceMax);
+			model.addAttribute("currentSize", size);
+		} else {
+			model.addAttribute("glasses", List.of());
+		}
+
+		if (responseBrand != null && responseBrand.getStatus() == 200) {
+			model.addAttribute("brands", responseBrand.getData());
+		} else {
+			model.addAttribute("brands", List.of());
+		}
+
+		if (responseShape != null && responseShape.getStatus() == 200) {
+			model.addAttribute("shapes", responseShape.getData());
+		} else {
+			model.addAttribute("shapes", List.of());
+		}
+
+		if (responseMaterial != null && responseMaterial.getStatus() == 200) {
+			model.addAttribute("materials", responseMaterial.getData());
+		} else {
+			model.addAttribute("materials", List.of());
+		}
+
 		if (responseColor != null && responseColor.getStatus() == 200) {
 			model.addAttribute("colors", responseColor.getData());
 		} else {
@@ -196,23 +289,28 @@ public class GlassController {
 	public String getEyeGlassesWomen(Model model, @RequestParam(required = false) String brand,
 			@RequestParam(required = false) String shape, @RequestParam(required = false) String material,
 			@RequestParam(required = false) String color, @RequestParam(required = false) String priceMin,
-			@RequestParam(required = false) String priceMax) {
+			@RequestParam(required = false) String priceMax, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size) {
+
 		FilterRequest filter = new FilterRequest();
 		filter.setBrands(brand);
 		filter.setShapes(shape);
 		filter.setMaterials(material);
 		filter.setColors(color);
-		if (priceMin != "")
+		if (priceMin != null && !priceMin.isEmpty())
 			filter.setMinPrice(priceMin);
-		if (priceMax != "")
+		if (priceMax != null && !priceMax.isEmpty())
 			filter.setMaxPrice(priceMax);
 
-		System.out.println("Filter: " + filter.toString());
-
-		// Tạo một danh sách để lưu trữ các thông báo lỗi
+		System.out.println("Filter: " + filter.toString()); // Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<GlassDTO>> response = glassService.findByCategoryEyeGlassWomenFilter(filter);
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi phương thức đã cập nhật với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.findByCategoryEyeGlassWomenFilter(filter, pageForApi,
+				size);
 		ApiResponse<List<String>> responseBrand = glassService.getAllBrand();
 		ApiResponse<List<String>> responseShape = glassService.getAllShape();
 		ApiResponse<List<String>> responseMaterial = glassService.getAllMaterial();
@@ -233,41 +331,56 @@ public class GlassController {
 		if (responseColor == null || responseColor.getStatus() != 200) {
 			errorMessages.add("Không thể lấy danh sách màu sắc");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
-		
-		List<GlassDTO> glasses = null;
-		System.out.println("glasses Women");
-		
-		// Thêm dữ liệu vào model nếu có
+
+		// Xử lý dữ liệu phân trang nếu có
 		if (response != null && response.getData() != null) {
-			glasses = response.getData();
-			model.addAttribute("glasses", response.getData());
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+
+			// Thêm các tham số hiện tại để sử dụng trong phân trang
+			model.addAttribute("currentBrand", brand);
+			model.addAttribute("currentShape", shape);
+			model.addAttribute("currentMaterial", material);
+			model.addAttribute("currentColor", color);
+			model.addAttribute("currentPriceMin", priceMin);
+			model.addAttribute("currentPriceMax", priceMax);
+			model.addAttribute("currentSize", size);
 		} else {
 			model.addAttribute("glasses", List.of());
 		}
-		
+
 		if (responseBrand != null && responseBrand.getStatus() == 200) {
 			model.addAttribute("brands", responseBrand.getData());
 		} else {
 			model.addAttribute("brands", List.of());
 		}
-		
+
 		if (responseShape != null && responseShape.getStatus() == 200) {
 			model.addAttribute("shapes", responseShape.getData());
 		} else {
 			model.addAttribute("shapes", List.of());
 		}
-		
+
 		if (responseMaterial != null && responseMaterial.getStatus() == 200) {
 			model.addAttribute("materials", responseMaterial.getData());
 		} else {
 			model.addAttribute("materials", List.of());
 		}
-		
+
 		if (responseColor != null && responseColor.getStatus() == 200) {
 			model.addAttribute("colors", responseColor.getData());
 		} else {
@@ -280,62 +393,31 @@ public class GlassController {
 	}
 
 	@GetMapping("/sunglasses")
-	public String getSunGlasses(Model model) {
-		// Tạo một danh sách để lưu trữ các thông báo lỗi
-		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<Glass>> response = glassService.findByCategorySunGlass();
-		ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-		
-		if (response == null || response.getStatus() != 200) {
-			errorMessages.add("Không thể lấy danh sách kính mát");
-		}
-		if (responseNotifications == null || responseNotifications.getStatus() != 200) {
-			errorMessages.add("Không thể lấy danh sách thông báo");
-		}
-		
-		// Thêm danh sách lỗi vào model nếu có lỗi
-		if (!errorMessages.isEmpty()) {
-			model.addAttribute("errorMessages", errorMessages);
-		}
-		
-		// Thêm dữ liệu vào model nếu có
-		if (response != null && response.getData() != null) {
-			model.addAttribute("glasses", response.getData());
-		} else {
-			model.addAttribute("glasses", List.of());
-		}
-		
-		if (responseNotifications != null && responseNotifications.getStatus() == 200) {
-			model.addAttribute("notifications", responseNotifications.getData());
-		} else {
-			model.addAttribute("notifications", List.of());
-		}
-		
-		return "KinhNam";
-	}
-
-	@GetMapping("/sunglasses/men")
-	public String getSunGlassesMen(Model model, @RequestParam(required = false) String brand,
+	public String getSunGlasses(Model model, @RequestParam(required = false) String brand,
 			@RequestParam(required = false) String shape, @RequestParam(required = false) String material,
 			@RequestParam(required = false) String color, @RequestParam(required = false) String priceMin,
-			@RequestParam(required = false) String priceMax) {
+			@RequestParam(required = false) String priceMax, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size) {
+
 		FilterRequest filter = new FilterRequest();
 		filter.setBrands(brand);
 		filter.setShapes(shape);
 		filter.setMaterials(material);
 		filter.setColors(color);
-		if (priceMin != "")
+		if (priceMin != null && !priceMin.isEmpty())
 			filter.setMinPrice(priceMin);
-		if (priceMax != "")
+		if (priceMax != null && !priceMax.isEmpty())
 			filter.setMaxPrice(priceMax);
 
-		System.out.println("Filter: " + filter.toString());
-
-		// Tạo một danh sách để lưu trữ các thông báo lỗi
+		System.out.println("Filter: " + filter.toString()); // Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<GlassDTO>> response = glassService.findByCategorySunGlassMenFilter(filter);
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi phương thức đã cập nhật với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.findByCategorySunGlassFilter(filter, pageForApi,
+				size);
 		ApiResponse<List<String>> responseBrand = glassService.getAllBrand();
 		ApiResponse<List<String>> responseShape = glassService.getAllShape();
 		ApiResponse<List<String>> responseMaterial = glassService.getAllMaterial();
@@ -356,41 +438,156 @@ public class GlassController {
 		if (responseColor == null || responseColor.getStatus() != 200) {
 			errorMessages.add("Không thể lấy danh sách màu sắc");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
 
-		List<GlassDTO> glasses = null;
-		System.out.println("Sunglasses Men");
-		
-		// Thêm dữ liệu vào model nếu có
+		// Xử lý dữ liệu phân trang nếu có
 		if (response != null && response.getData() != null) {
-			glasses = response.getData();
-			model.addAttribute("glasses", response.getData());
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+
+			// Thêm các tham số hiện tại để sử dụng trong phân trang
+			model.addAttribute("currentBrand", brand);
+			model.addAttribute("currentShape", shape);
+			model.addAttribute("currentMaterial", material);
+			model.addAttribute("currentColor", color);
+			model.addAttribute("currentPriceMin", priceMin);
+			model.addAttribute("currentPriceMax", priceMax);
+			model.addAttribute("currentSize", size);
 		} else {
 			model.addAttribute("glasses", List.of());
 		}
-		
+
 		if (responseBrand != null && responseBrand.getStatus() == 200) {
 			model.addAttribute("brands", responseBrand.getData());
 		} else {
 			model.addAttribute("brands", List.of());
 		}
-		
+
 		if (responseShape != null && responseShape.getStatus() == 200) {
 			model.addAttribute("shapes", responseShape.getData());
 		} else {
 			model.addAttribute("shapes", List.of());
 		}
-		
+
 		if (responseMaterial != null && responseMaterial.getStatus() == 200) {
 			model.addAttribute("materials", responseMaterial.getData());
 		} else {
 			model.addAttribute("materials", List.of());
 		}
-		
+
+		if (responseColor != null && responseColor.getStatus() == 200) {
+			model.addAttribute("colors", responseColor.getData());
+		} else {
+			model.addAttribute("colors", List.of());
+		}
+
+		model.addAttribute("category", "Eyeglasses");
+		model.addAttribute("gender", "");
+
+		return "KinhNam";
+	}
+
+	@GetMapping("/sunglasses/men")
+	public String getSunGlassesMen(Model model, @RequestParam(required = false) String brand,
+			@RequestParam(required = false) String shape, @RequestParam(required = false) String material,
+			@RequestParam(required = false) String color, @RequestParam(required = false) String priceMin,
+			@RequestParam(required = false) String priceMax, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size) {
+
+		FilterRequest filter = new FilterRequest();
+		filter.setBrands(brand);
+		filter.setShapes(shape);
+		filter.setMaterials(material);
+		filter.setColors(color);
+		if (priceMin != null && !priceMin.isEmpty())
+			filter.setMinPrice(priceMin);
+		if (priceMax != null && !priceMax.isEmpty())
+			filter.setMaxPrice(priceMax);
+
+		System.out.println("Filter: " + filter.toString()); // Tạo một danh sách để lưu trữ các thông báo lỗi
+		List<String> errorMessages = new ArrayList<>();
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi phương thức đã cập nhật với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.findByCategorySunGlassMenFilter(filter, pageForApi,
+				size);
+		ApiResponse<List<String>> responseBrand = glassService.getAllBrand();
+		ApiResponse<List<String>> responseShape = glassService.getAllShape();
+		ApiResponse<List<String>> responseMaterial = glassService.getAllMaterial();
+		ApiResponse<List<String>> responseColor = glassService.getAllColor();
+
+		if (response == null || response.getStatus() != 200) {
+			errorMessages.add("Không thể lấy danh sách kính theo bộ lọc");
+		}
+		// Các kiểm tra khác giữ nguyên...
+
+		// Thêm danh sách lỗi vào model nếu có lỗi
+		if (!errorMessages.isEmpty()) {
+			model.addAttribute("errorMessages", errorMessages);
+		}
+
+		// Xử lý dữ liệu phân trang nếu có
+		if (response != null && response.getData() != null) {
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+
+			// Thêm các tham số hiện tại để sử dụng trong phân trang
+			model.addAttribute("currentBrand", brand);
+			model.addAttribute("currentShape", shape);
+			model.addAttribute("currentMaterial", material);
+			model.addAttribute("currentColor", color);
+			model.addAttribute("currentPriceMin", priceMin);
+			model.addAttribute("currentPriceMax", priceMax);
+			model.addAttribute("currentSize", size);
+		} else {
+			model.addAttribute("glasses", List.of());
+		}
+
+		// Các phần thêm dữ liệu khác vào model (đối với brands, shapes, materials,
+		// colors) giữ nguyên...
+
+		if (responseBrand != null && responseBrand.getStatus() == 200) {
+			model.addAttribute("brands", responseBrand.getData());
+		} else {
+			model.addAttribute("brands", List.of());
+		}
+
+		if (responseShape != null && responseShape.getStatus() == 200) {
+			model.addAttribute("shapes", responseShape.getData());
+		} else {
+			model.addAttribute("shapes", List.of());
+		}
+
+		if (responseMaterial != null && responseMaterial.getStatus() == 200) {
+			model.addAttribute("materials", responseMaterial.getData());
+		} else {
+			model.addAttribute("materials", List.of());
+		}
+
 		if (responseColor != null && responseColor.getStatus() == 200) {
 			model.addAttribute("colors", responseColor.getData());
 		} else {
@@ -406,23 +603,28 @@ public class GlassController {
 	public String getSunGlassesWomen(Model model, @RequestParam(required = false) String brand,
 			@RequestParam(required = false) String shape, @RequestParam(required = false) String material,
 			@RequestParam(required = false) String color, @RequestParam(required = false) String priceMin,
-			@RequestParam(required = false) String priceMax) {
+			@RequestParam(required = false) String priceMax, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size) {
+
 		FilterRequest filter = new FilterRequest();
 		filter.setBrands(brand);
 		filter.setShapes(shape);
 		filter.setMaterials(material);
 		filter.setColors(color);
-		if (priceMin != "")
+		if (priceMin != null && !priceMin.isEmpty())
 			filter.setMinPrice(priceMin);
-		if (priceMax != "")
+		if (priceMax != null && !priceMax.isEmpty())
 			filter.setMaxPrice(priceMax);
 
-		System.out.println("Filter: " + filter.toString());
-
-		// Tạo một danh sách để lưu trữ các thông báo lỗi
+		System.out.println("Filter: " + filter.toString()); // Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<GlassDTO>> response = glassService.findByCategorySunGlassWomenFilter(filter);
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi phương thức đã cập nhật với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.findByCategorySunGlassWomenFilter(filter, pageForApi,
+				size);
 		ApiResponse<List<String>> responseBrand = glassService.getAllBrand();
 		ApiResponse<List<String>> responseShape = glassService.getAllShape();
 		ApiResponse<List<String>> responseMaterial = glassService.getAllMaterial();
@@ -443,41 +645,56 @@ public class GlassController {
 		if (responseColor == null || responseColor.getStatus() != 200) {
 			errorMessages.add("Không thể lấy danh sách màu sắc");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
 
-		List<GlassDTO> glasses = null;
-		System.out.println("Sunglasses Women");
-		
-		// Thêm dữ liệu vào model nếu có
+		// Xử lý dữ liệu phân trang nếu có
 		if (response != null && response.getData() != null) {
-			glasses = response.getData();
-			model.addAttribute("glasses", response.getData());
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+
+			// Thêm các tham số hiện tại để sử dụng trong phân trang
+			model.addAttribute("currentBrand", brand);
+			model.addAttribute("currentShape", shape);
+			model.addAttribute("currentMaterial", material);
+			model.addAttribute("currentColor", color);
+			model.addAttribute("currentPriceMin", priceMin);
+			model.addAttribute("currentPriceMax", priceMax);
+			model.addAttribute("currentSize", size);
 		} else {
 			model.addAttribute("glasses", List.of());
 		}
-		
+
 		if (responseBrand != null && responseBrand.getStatus() == 200) {
 			model.addAttribute("brands", responseBrand.getData());
 		} else {
 			model.addAttribute("brands", List.of());
 		}
-		
+
 		if (responseShape != null && responseShape.getStatus() == 200) {
 			model.addAttribute("shapes", responseShape.getData());
 		} else {
 			model.addAttribute("shapes", List.of());
 		}
-		
+
 		if (responseMaterial != null && responseMaterial.getStatus() == 200) {
 			model.addAttribute("materials", responseMaterial.getData());
 		} else {
 			model.addAttribute("materials", List.of());
 		}
-		
+
 		if (responseColor != null && responseColor.getStatus() == 200) {
 			model.addAttribute("colors", responseColor.getData());
 		} else {
@@ -493,35 +710,35 @@ public class GlassController {
 	public String getGlassesbyId(@PathVariable Long id, Model model, HttpSession session) {
 		// Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
+
 		ApiResponse<Glass> response = glassService.findById(id);
 		ApiResponse<List<Review>> responseReview = reviewService.getReviewsByProductId(id, 0, 5);
-		
+
 		if (response == null || response.getStatus() != 200) {
 			errorMessages.add("Không thể hiển thị thông tin kính");
 		}
 		if (responseReview == null || responseReview.getStatus() != 200) {
 			errorMessages.add("Không thể hiển thị các đánh giá");
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
-		
+
 		// Thêm dữ liệu vào model nếu có
 		if (response != null && response.getData() != null) {
 			model.addAttribute("glasses", response.getData());
 		} else {
 			model.addAttribute("glasses", null);
 		}
-		
+
 		model.addAttribute("username", session.getAttribute("username"));
-		
+
 		if (responseReview != null && responseReview.getData() != null) {
 			List<?> rawReviews = responseReview.getData();
 			List<Review> reviews = new ArrayList<>();
-			
+
 			// Xử lý chuyển đổi từ LinkedHashMap sang Review
 			for (Object rawReview : rawReviews) {
 				if (rawReview instanceof Review) {
@@ -534,21 +751,21 @@ public class GlassController {
 					}
 				}
 			}
-			
+
 			// Tính toán điểm đánh giá trung bình
 			double averageRating = calculateAverageRating(reviews);
 			model.addAttribute("averageRating", averageRating);
-			
+
 			// Thêm danh sách đánh giá
 			model.addAttribute("reviews", reviews);
-			
+
 			// Tính tổng số đánh giá
 			model.addAttribute("reviewCount", reviews.size());
-			
+
 			// Tính số lượng đánh giá cho mỗi mức sao (1-5)
 			Map<Integer, Integer> ratingCounts = countRatingsByLevel(reviews);
 			model.addAttribute("ratingCounts", ratingCounts);
-			
+
 			model.addAttribute("hasMore", responseReview.getMessage());
 		} else {
 			model.addAttribute("reviews", List.of());
@@ -557,7 +774,7 @@ public class GlassController {
 			model.addAttribute("ratingCounts", Map.of());
 			model.addAttribute("hasMore", null);
 		}
-		
+
 		return "detail";
 	}
 
@@ -565,31 +782,31 @@ public class GlassController {
 	private Review convertMapToReview(Map<?, ?> map) {
 		try {
 			Review review = new Review();
-			
+
 			if (map.containsKey("userId") && map.get("userId") != null) {
 				review.setUserId(Long.valueOf(map.get("userId").toString()));
 			}
-			
+
 			if (map.containsKey("productId") && map.get("productId") != null) {
 				review.setProductId(Long.valueOf(map.get("productId").toString()));
 			}
-			
+
 			if (map.containsKey("username") && map.get("username") != null) {
 				review.setUsername(map.get("username").toString());
 			}
-			
+
 			if (map.containsKey("productName") && map.get("productName") != null) {
 				review.setProductName(map.get("productName").toString());
 			}
-			
+
 			if (map.containsKey("content") && map.get("content") != null) {
 				review.setContent(map.get("content").toString());
 			}
-			
+
 			if (map.containsKey("rating") && map.get("rating") != null) {
 				review.setRating(Integer.valueOf(map.get("rating").toString()));
 			}
-			
+
 			if (map.containsKey("createdAt") && map.get("createdAt") != null) {
 				String dateTimeStr = map.get("createdAt").toString();
 				// Convert String to LocalDateTime
@@ -606,7 +823,7 @@ public class GlassController {
 				// Set current time if no createdAt value
 				review.setCreatedAt(LocalDateTime.now());
 			}
-			
+
 			return review;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -616,18 +833,18 @@ public class GlassController {
 
 	private Map<Integer, Integer> countRatingsByLevel(List<Review> reviews) {
 		Map<Integer, Integer> ratingCounts = new HashMap<>();
-		
+
 		// Khởi tạo map với tất cả các mức sao từ 1-5
 		for (int i = 1; i <= 5; i++) {
 			ratingCounts.put(i, 0);
 		}
-		
+
 		// Đếm số lượng đánh giá cho mỗi mức sao
 		for (Review review : reviews) {
 			int rating = review.getRating();
 			ratingCounts.put(rating, ratingCounts.getOrDefault(rating, 0) + 1);
 		}
-		
+
 		return ratingCounts;
 	}
 
@@ -645,68 +862,112 @@ public class GlassController {
 	}
 
 	@GetMapping("/search")
-	public String searchGlasses(@RequestParam String keyword, Model model) {
+	public String searchGlasses(@RequestParam String keyword, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "8") int size, Model model) {
 		// Tạo một danh sách để lưu trữ các thông báo lỗi
 		List<String> errorMessages = new ArrayList<>();
-		
-		ApiResponse<List<GlassDTO>> response = glassService.search(keyword);
+
+		// Convert 1-based page to 0-based page for API call
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Gọi service với tham số phân trang
+		ApiResponse<Map<String, Object>> response = glassService.searchWithPagination(keyword, pageForApi, size);
 		ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-		
+
 		if (response == null || response.getStatus() != 200) {
 			errorMessages.add("Không thể tìm kiếm sản phẩm với từ khóa: " + keyword);
 		}
-		
+
 		// Thêm danh sách lỗi vào model nếu có lỗi
 		if (!errorMessages.isEmpty()) {
 			model.addAttribute("errorMessages", errorMessages);
 		}
-		
-		// Thêm dữ liệu vào model nếu có
+
+		// Xử lý dữ liệu phân trang nếu có
 		if (response != null && response.getData() != null) {
-			model.addAttribute("glasses", response.getData());
+			Map<String, Object> paginationData = response.getData();
+
+			// Thêm danh sách kính vào model
+			List<GlassDTO> glasses = (List<GlassDTO>) paginationData.get("data");
+			model.addAttribute("glasses", glasses);
+
+			// Thêm thông tin phân trang vào model
+			model.addAttribute("currentPage", paginationData.get("currentPage"));
+			model.addAttribute("totalItems", paginationData.get("totalItems"));
+			model.addAttribute("totalPages", paginationData.get("totalPages"));
+			model.addAttribute("hasMore", paginationData.get("hasMore"));
+			model.addAttribute("currentSize", size);
 		} else {
 			model.addAttribute("glasses", List.of());
 		}
-			
+
+		if (responseNotifications != null && responseNotifications.getStatus() == 200) {
+			model.addAttribute("notifications", responseNotifications.getData());
+		} else {
+			model.addAttribute("notifications", List.of());
+		}
+
 		model.addAttribute("keyword", keyword);
 		return "Result-Search";
 	}
 
 	@GetMapping
-	public String getProducts(Model model, HttpSession session) {
+	public String getProducts(Model model, HttpSession session, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "10") int size) {
 		String role = (String) session.getAttribute("role");
 		if (role != null && (role.equals("ADMIN") || role.equals("SUPER"))) {
 			// Tạo một danh sách để lưu trữ các thông báo lỗi
 			List<String> errorMessages = new ArrayList<>();
-			
-			ApiResponse<List<Glass>> response = glassService.findAll();
+
+			// Điều chỉnh page để phù hợp với API (chuyển từ 1-based sang 0-based)
+			int pageForApi = page > 0 ? page - 1 : 0;
+
+			// Sử dụng API phân trang mới
+			ApiResponse<Map<String, Object>> response = glassService.findAllPaginated(pageForApi, size);
 			ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
-			
+
 			if (response == null || response.getStatus() != 200) {
 				errorMessages.add("Không thể lấy danh sách sản phẩm");
 			}
 			if (responseNotifications == null || responseNotifications.getStatus() != 200) {
 				errorMessages.add("Không thể lấy danh sách thông báo");
 			}
-			
+
 			// Thêm danh sách lỗi vào model nếu có lỗi
 			if (!errorMessages.isEmpty()) {
 				model.addAttribute("errorMessages", errorMessages);
 			}
-			
-			// Thêm dữ liệu vào model nếu có
-			if (response != null && response.getStatus() == 200) {
-				model.addAttribute("products", response.getData());
+			// Xử lý dữ liệu phân trang nếu có
+			if (response != null && response.getStatus() == 200 && response.getData() != null) {
+				Map<String, Object> paginationData = response.getData();
+
+				// Thêm danh sách kính vào model
+				List<Glass> glasses = (List<Glass>) paginationData.get("data");
+				model.addAttribute("products", glasses);
+
+				// Thêm thông tin phân trang vào model
+				model.addAttribute("currentPage", paginationData.get("currentPage"));
+				model.addAttribute("totalItems", paginationData.get("totalItems"));
+				model.addAttribute("totalPages", paginationData.get("totalPages"));
+				model.addAttribute("hasMore", paginationData.get("hasMore"));
+				model.addAttribute("currentSize", size);
 			} else {
 				model.addAttribute("products", List.of());
+				// Thêm thông tin phân trang mặc định khi không có dữ liệu
+				model.addAttribute("currentPage", 0);
+				model.addAttribute("totalItems", 0);
+				model.addAttribute("totalPages", 0);
+				model.addAttribute("hasMore", false);
+				model.addAttribute("currentSize", size);
+				model.addAttribute("errorMessages", Collections.singletonList("Không có sản phẩm nào"));
 			}
-			
+
 			if (responseNotifications != null && responseNotifications.getStatus() == 200) {
 				model.addAttribute("notifications", responseNotifications.getData());
 			} else {
 				model.addAttribute("notifications", List.of());
 			}
-			
+
 			return "admin-products";
 		} else {
 			return "accessDenied";
@@ -922,18 +1183,53 @@ public class GlassController {
 
 	// Search
 	@GetMapping("/searchGlasses")
-	public ModelAndView search(@RequestParam String keyword, ModelAndView model) {
-		ApiResponse response = glassService.searchByName(keyword);
+	public ModelAndView search(@RequestParam String keyword, @RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "10") int size, HttpSession session, ModelAndView model) {
+		// Kiểm tra quyền truy cập
+		String role = (String) session.getAttribute("role");
+		if (role == null || (!role.equals("ADMIN") && !role.equals("SUPER"))) {
+			model.setViewName("accessDenied");
+			return model;
+		}
 
+		// Lấy thông báo
+		ApiResponse<List<Notification>> responseNotifications = notificationService.findByIsReadFalse();
+		List<Notification> notifications = responseNotifications != null && responseNotifications.getStatus() == 200
+				? responseNotifications.getData()
+				: List.of();
+
+		// Điều chỉnh page để phù hợp với API (chuyển từ 1-based sang 0-based)
+		int pageForApi = page > 0 ? page - 1 : 0;
+
+		// Tìm kiếm sản phẩm với phân trang
+		ApiResponse<Map<String, Object>> response = glassService.searchByNamePaginated(keyword, pageForApi, size);
 		List<Glass> glasses = null;
 
-		if (response != null && response.getErrors() == null) {
-			glasses = (List<Glass>) response.getData();
+		if (response != null && response.getStatus() == 200 && response.getData() != null) {
+			Map<String, Object> paginationData = response.getData();
+			glasses = (List<Glass>) paginationData.get("data");
+
+			// Thêm thông tin phân trang vào model
+			model.addObject("currentPage", paginationData.get("currentPage"));
+			model.addObject("totalItems", paginationData.get("totalItems"));
+			model.addObject("totalPages", paginationData.get("totalPages"));
+			model.addObject("hasMore", paginationData.get("hasMore"));
+			model.addObject("currentSize", size);
+			model.addObject("keyword", keyword);
+		} else {
+			glasses = List.of();
+			model.addObject("currentPage", 0);
+			model.addObject("totalItems", 0);
+			model.addObject("totalPages", 0);
+			model.addObject("currentSize", size);
+			model.addObject("keyword", keyword);
+			model.addObject("errorMessages",
+					Collections.singletonList("Không tìm thấy sản phẩm nào với từ khóa: " + keyword));
 		}
 
 		model.setViewName("admin-products");
 		model.addObject("products", glasses);
-
+		model.addObject("notifications", notifications);
 		return model;
 	}
 

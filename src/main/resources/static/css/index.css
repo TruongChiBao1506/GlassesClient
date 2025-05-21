@@ -1,9 +1,31 @@
 /* GLOBAL */
 html, body {
-	font-family: 'Times New Roman', Times, serif;
+	font-family: Arial, sans-serif;
 	overflow: auto;
 	scrollbar-width: none;
 	-ms-overflow-style: none; /* IE và Edge cũ */
+}
+
+/* Áp dụng font Arial cho tất cả các phần tử */
+* {
+	font-family: Arial, sans-serif;
+}
+
+/* Đảm bảo font Arial cho các thành phần quan trọng trên tất cả các trang */
+h1, h2, h3, h4, h5, h6,
+p, span, a, div, button, input, select, textarea, label,
+table, th, td, li, ul, ol,
+.navbar, .nav-item, .nav-link, .btn, .card, .form-control,
+.modal, .dropdown, .container, .row, .col, 
+.footer {
+	font-family: Arial, sans-serif !important;
+}
+
+/* Ghi đè các font có thể được định nghĩa nội tuyến */
+[style*="font-family"],
+[face],
+font {
+	font-family: Arial, sans-serif !important;
 }
 
 header {

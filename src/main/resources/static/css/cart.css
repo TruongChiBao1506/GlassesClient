@@ -1,4 +1,6 @@
+/* Áp dụng font Arial cho tất cả các phần tử */
 * {
+	font-family: Arial, sans-serif;
 	box-sizing: inherit;
 }
 
@@ -20,7 +22,7 @@
 
 html {
 	line-height: 1.6rem;
-	font-family: 'Times New Roman', Times, serif;
+	font-family: Arial, sans-serif;
 	box-sizing: border-box;
 	overflow-x: hidden;
 }
@@ -29,7 +31,7 @@ body {
 	margin: 0;
 	width: 100vw;
 	background-color: #f8f9fa;
-	font-family: 'Times New Roman', Times, serif;
+	font-family: Arial, sans-serif;
 }
 
 .title {
@@ -44,6 +46,7 @@ body {
 	color: #333;
 	margin-bottom: 30px;
 	border-bottom: none;
+	font-family: Arial, sans-serif;
 }
 
 .title:after {
@@ -281,7 +284,6 @@ body {
 
 .details {
 	margin-left: 20px;
-	font-size: 1.5rem;
 }
 
 .color-box {
@@ -401,6 +403,7 @@ body {
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
 	padding: 15px;
+	font-family: Arial, sans-serif;
 }
 
 .right__total {
@@ -509,7 +512,7 @@ width
 }
 
 .price__button__add span {
-	font-family: 'Quicksand' !important;
+	font-family: Arial, sans-serif !important;
 }
 
 .cart__right span:last-child {
@@ -542,6 +545,11 @@ width
 	cursor: pointer;
 }
 
+/* Áp dụng font chung cho các phần thông tin quan trọng */
+.cart__right {
+	font-family: Arial, sans-serif;
+}
+
 .payment-method {
 	font-family: Arial, sans-serif;
 	background-color: #f9f9f9;
@@ -559,16 +567,19 @@ width
 .payment-method h6 {
 	font-size: 0.9rem;
 	color: #495057;
+	margin-bottom: 12px; /* Thêm khoảng cách dưới tiêu đề */
 }
 
 .payment-method .form-check {
 	transition: background-color 0.2s ease;
+	padding: 5px; /* Always have padding to prevent layout shifts */
+	border-radius: 5px;
+	display: flex;
+	align-items: center;
 }
 
 .payment-method .form-check:hover {
 	background-color: #e9ecef;
-	border-radius: 5px;
-	padding: 5px;
 }
 
 .payment-method i {
@@ -584,27 +595,90 @@ width
 	background-color: rgba(0, 123, 255, 0.05);
 }
 
+.payment-options .form-check-label {
+	display: flex;
+	width: 100%;
+	align-items: center;
+}
+
+/* Cải thiện hiển thị văn bản trong phương thức thanh toán */
+.payment-option span {
+	font-size: 0.9rem !important; /* Thống nhất kích thước font */
+	padding-bottom: 0 !important; /* Ghi đè padding-bottom từ .cart__right span */
+	border-bottom: none !important; /* Ghi đè border từ .cart__right span */
+	font-weight: normal !important; /* Ghi đè font-weight từ .cart__right span */
+	line-height: 1.2; /* Cải thiện line height */
+	font-family: Arial, sans-serif !important; /* Đảm bảo font đồng nhất */
+}
+
+/* Đảm bảo căn chỉnh giữa văn bản và icon */
+.payment-option .d-flex.justify-content-between {
+	width: 100%;
+}
+
 .payment-option {
 	cursor: pointer;
-	transition: background-color 0.2s ease;
+	transition: background-color 0.2s ease, transform 0.2s ease;
 	margin-bottom: 10px;
 	border-radius: 6px;
+	position: relative;
+	overflow: hidden;
+	padding: 0; /* Reset padding - sẽ để padding trong .form-check */
+}
+
+.payment-option .form-check {
+	padding: 12px; /* Sử dụng padding cho form-check để đảm bảo căn chỉnh tốt hơn */
 }
 
 .payment-option:hover {
 	background-color: rgba(0, 123, 255, 0.05);
+	transform: translateY(-2px);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .payment-option:last-child {
 	margin-bottom: 0;
 }
 
+/* Xóa bỏ margin-top vì chúng ta sẽ căn chỉnh với flexbox */
 .payment-option .form-check-input {
-	margin-top: 0.3rem;
+	margin-top: 0;
 }
 
+/* New styles for payment icon alignment */
 .payment-option i {
 	font-size: 1.2rem;
+	height: 24px;
+	width: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.payment-option .d-flex {
+	height: 24px; /* Fixed height to prevent shifts */
+	align-items: center;
+}
+
+/* Improved alignment of payment options */
+.payment-option .form-check {
+	display: flex;
+	align-items: center;
+	margin: 0; /* Xóa margin mặc định */
+	width: 100%; /* Đảm bảo chiếm toàn bộ không gian */
+}
+
+.payment-option .form-check-label {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0;
+	padding-left: 8px; /* Thêm khoảng cách từ radio button */
+}
+
+.payment-option .form-check-input {
+	margin-top: 0;
+	margin-right: 0;
+	flex-shrink: 0; /* Ngăn radio button bị co lại */
 }
 
 .form-check-input {
@@ -621,6 +695,7 @@ width
 	letter-spacing: 0.5px;
 	box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
 	transition: all 0.3s ease;
+	font-family: Arial, sans-serif;
 }
 
 .checkout-btn:hover:not([disabled]) {
@@ -651,6 +726,7 @@ width
 
 .user-info {
 	margin: 15px 0;
+	font-family: Arial, sans-serif;
 }
 
 .user-info i {
@@ -676,12 +752,14 @@ width
 	background-color: #f8f9fa;
 	border-radius: 6px;
 	padding: 15px;
+	font-family: Arial, sans-serif;
 }
 
 .order-summary h6 {
 	font-size: 0.9rem;
 	margin-bottom: 15px;
 	color: #495057;
+	font-family: Arial, sans-serif;
 }
 
 .empty-cart-message {
@@ -763,4 +841,72 @@ width
 	.item__top {
 		padding: 10px;
 	}
+}
+
+/* Đảm bảo nhất quán font cho tất cả phần tử trong phần thanh toán và thông tin */
+.cart__right .card-body,
+.cart__right .form-check,
+.cart__right label,
+.cart__right h5,
+.cart__right h6,
+.cart__right p,
+.cart__right span,
+.cart__right small,
+.payment-option,
+.info-item,
+.order-summary * {
+	font-family: Arial, sans-serif !important;
+}
+
+/* Đảm bảo ghi đè các font khác ở các class cụ thể */
+.cart__right .card h5.mb-0,
+.cart__right .card h6.text-uppercase,
+.payment-method h6.text-uppercase,
+.info-item small.text-muted {
+	font-family: Arial, sans-serif !important;
+}
+
+/* Đảm bảo các phần giá tiền hiển thị đúng font */
+.order__subtotal,
+.shipping-cost,
+.order__total {
+	font-family: Arial, sans-serif !important;
+}
+
+/* Đảm bảo font Arial cho tất cả các phần tử quan trọng */
+.cart,
+.cart h1, .cart h2, .cart h3, .cart h4, .cart h5, .cart h6,
+.cart p, .cart span, .cart div, .cart a,
+.cart button, .cart input, .cart label, .cart select, .cart textarea,
+.cart__left, .cart__right,
+.product-title, .product-price, .price, .total,
+.cart__head, .cart__item, .cart__product,
+.btn, .form-control, .form-check-label, .form-check-input {
+	font-family: Arial, sans-serif !important;
+}
+
+/* Áp dụng font Arial cho footer và các phần còn lại */
+footer,
+footer a,
+footer p,
+footer div,
+footer h1, footer h2, footer h3, footer h4, footer h5, footer h6,
+.footer__top, .footer__bottom, .footer__grid, .footer__link, .footer__form,
+.footer__contact, .footer__form input, .footer__form button {
+	font-family: Arial, sans-serif !important;
+}
+
+/* Đảm bảo tất cả các phần tử inline và element có font Arial */
+[style*="font-family"],
+[face],
+font,
+.empty-cart-message,
+.continue-shopping,
+.item__top,
+.item__bot,
+.ribbon span,
+.hover-content,
+.info-item small,
+.info-item p {
+	font-family: Arial, sans-serif !important;
 }

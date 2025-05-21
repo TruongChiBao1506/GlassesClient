@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -27,7 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AuthServiceImpl implements AuthService {
 	private ObjectMapper objectMapper;
 	private RestClient restClient;
-	private static final String ENDPOINT = "http://localhost:8080/api";
+	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
 
 	public AuthServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
 		this.restClient = restClient;

@@ -484,6 +484,20 @@ body {
     align-items: center;
     margin-bottom: 20px;
     color: #2e4a66;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
 }
 
 .add-user-btn {
@@ -575,6 +589,25 @@ tr:hover {
         display: inline;
     }
 }
+
+@media (max-width: 768px) {
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-section, .action-buttons {
+        width: 100%;
+    }
+    
+    .filter-section label, .filter-section select {
+        margin-bottom: 10px;
+    }
+    
+    .form-select.w-25 {
+        width: 100% !important;
+    }
+}
 .sidebar-list-item {
     position: relative;
 }
@@ -610,4 +643,47 @@ tr:hover {
 
 .has-submenu.open .dropdown-icon {
     transform: rotate(180deg); /* Đảo hướng khi mở */
+}
+
+/* Add loading indicator styles for dropdowns */
+.form-select.loading {
+    background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+    animation: loading-animation 1s linear infinite;
+}
+
+@keyframes loading-animation {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 1rem 0;
+    }
+}
+
+/* Enhanced button styles */
+.btn-filter, .btn-export {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-filter:hover, .btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Auto-update feedback styles */
+.auto-update-notification {
+    display: inline-block;
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.auto-update-notification.active {
+    opacity: 1;
 }

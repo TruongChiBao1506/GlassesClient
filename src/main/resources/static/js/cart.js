@@ -347,7 +347,7 @@ async function thanhtoan() {
         console.log(token)
         // Gửi dữ liệu lên server
         try {
-            const response = await fetch("http://localhost:8080/api/orders/checkout", {
+            const response = await fetch("http://54.254.82.176:8080/api/orders/checkout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
