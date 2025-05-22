@@ -15,17 +15,17 @@ function loadData(year, month, page = 0, size = 10) {
 	
 	// Gọi API doanh thu
 	const revenueApi = month
-		? `http://54.254.82.176:8080/api/orders/revenue/daily?year=${year}&month=${month}`
-		: `http://54.254.82.176:8080/api/orders/revenue/monthly?year=${year}`;
+		? `http://52.77.218.250:8080/api/orders/revenue/daily?year=${year}&month=${month}`
+		: `http://52.77.218.250:8080/api/orders/revenue/monthly?year=${year}`;
 
 	// Gọi API trạng thái
 	const statusApi = month
-		? `http://54.254.82.176:8080/api/orders/status-percentage/monthly?year=${year}&month=${month}`
-		: `http://54.254.82.176:8080/api/orders/status-percentage/yearly?year=${year}`;
+		? `http://52.77.218.250:8080/api/orders/status-percentage/monthly?year=${year}&month=${month}`
+		: `http://52.77.218.250:8080/api/orders/status-percentage/yearly?year=${year}`;
 
 	const apiUrl = month
-		? `http://54.254.82.176:8080/api/orders/list?year=${year}&month=${month}&page=${page}&size=${size}`
-		: `http://54.254.82.176:8080/api/orders/list?year=${year}&page=${page}&size=${size}`;
+		? `http://52.77.218.250:8080/api/orders/list?year=${year}&month=${month}&page=${page}&size=${size}`
+		: `http://52.77.218.250:8080/api/orders/list?year=${year}&page=${page}&size=${size}`;
 
 	// Trả về Promise để có thể theo dõi khi việc tải dữ liệu hoàn thành
 	return new Promise((resolve, reject) => {
@@ -281,8 +281,8 @@ function renderOrderList(orders) {
 function exportOrders(year, month) {
 	const token = document.getElementById('token').value;
 	const apiUrl = month
-		? `http://54.254.82.176:8080/api/orders/orders-export?year=${year}&month=${month}`
-		: `http://54.254.82.176:8080/api/orders/orders-export?year=${year}`;
+		? `http://52.77.218.250:8080/api/orders/orders-export?year=${year}&month=${month}`
+		: `http://52.77.218.250:8080/api/orders/orders-export?year=${year}`;
 
 	// Hiển thị thông báo đang tải với SweetAlert2
 	Swal.fire({

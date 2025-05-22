@@ -26,7 +26,8 @@ public class CartServiceImpl implements CartService {
 
 	@Autowired
 	private SessionUtil sessionUtil;
-	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
+	@Value("${api.url}")
+	private String ENDPOINT;
 
 	@Override
 	public ApiResponse<CartDTO> getCart(Long userId) {

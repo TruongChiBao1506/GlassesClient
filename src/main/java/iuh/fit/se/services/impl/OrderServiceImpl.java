@@ -24,7 +24,8 @@ import jakarta.servlet.http.HttpServletResponse;
 public class OrderServiceImpl implements OrderService {
 	private RestClient restClient;
 	private ObjectMapper objectMapper;
-	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
+	@Value("${api.url}")
+	private String ENDPOINT;
 
 	@Autowired
 	private SessionUtil sessionUtil;

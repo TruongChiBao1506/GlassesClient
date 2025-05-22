@@ -20,7 +20,8 @@ import iuh.fit.se.utils.ApiResponse;
 public class FrameSizeServiceImpl implements FrameSizeService{
 	private RestClient restClient;
 	private ObjectMapper objectMapper;
-	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
+	@Value("${api.url}")
+	private String ENDPOINT;
 	public FrameSizeServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
 		super();
 		this.restClient = restClient;

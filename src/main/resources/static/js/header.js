@@ -84,7 +84,7 @@ async function markAsRead(notificationId) {
         return;
     }
     
-    const url = 'http://54.254.82.176:8080/api/notifications/'+notificationId+'/mark-as-read';
+    const url = 'http://52.77.218.250:8080/api/notifications/'+notificationId+'/mark-as-read';
     
     try {
         const response = await fetch(url, {

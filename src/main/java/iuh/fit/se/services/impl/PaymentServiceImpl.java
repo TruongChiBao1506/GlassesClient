@@ -17,7 +17,8 @@ public class PaymentServiceImpl implements PaymentService{
 	
 	private RestClient restClient;
 	private ObjectMapper objectMapper;
-	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
+	@Value("${api.url}")
+	private String ENDPOINT;
 
 	public PaymentServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
 		this.restClient = restClient;

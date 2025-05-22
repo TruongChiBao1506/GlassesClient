@@ -28,7 +28,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AuthServiceImpl implements AuthService {
 	private ObjectMapper objectMapper;
 	private RestClient restClient;
-	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
+	
+	@Value("${api.url}")
+	private String ENDPOINT;
 
 	public AuthServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
 		this.restClient = restClient;

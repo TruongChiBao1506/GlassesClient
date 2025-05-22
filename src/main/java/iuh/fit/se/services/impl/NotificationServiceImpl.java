@@ -24,7 +24,8 @@ public class NotificationServiceImpl implements NotificationService {
 
 	private RestClient restClient;
 	private ObjectMapper objectMapper;
-	private static final String ENDPOINT = "http://54.254.82.176:8080/api";
+	@Value("${api.url}")
+	private String ENDPOINT;
 
 	public NotificationServiceImpl(RestClient restClient, ObjectMapper objectMapper) {
 		this.restClient = restClient;

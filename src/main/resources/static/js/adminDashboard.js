@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	const token = document.getElementById('token').value;
 	const refreshToken = document.getElementById('refreshToken').value;
 	document.cookie = `refreshToken=${refreshToken}; path=/`;
-	fetch('http://54.254.82.176:8080/api/orders/orders-statistic', {
+	fetch('http://52.77.218.250:8080/api/orders/orders-statistic', {
 		method: "GET",
 		headers: {
 			'Authorization': `Bearer ${token}`,
